@@ -43,7 +43,7 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
     else if (consoleHistoryIndex >= consoleHistory.length - 1 && increment === 1) {
       console.log('increment when at end of history');
       setConsoleHistoryIndex(-1);
-      newConsoleEditText = "";
+      newConsoleEditText = consoleEditTextCache;
     }
     else if (consoleHistoryIndex !== -1) {
       newConsoleEditText = consoleHistory[consoleHistoryIndex + increment];
