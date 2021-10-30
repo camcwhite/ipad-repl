@@ -1,14 +1,19 @@
 import React from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
-import { StatusBar } from 'expo-status-bar';
+import  {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import { StackParamList } from "../App";
 
-export const HomeScreen = () => {
+type HomeScreenProps = {
+  navigation: NativeStackNavigationProp<StackParamList,'Home'> 
+};
+
+export const HomeScreen = ( { navigation }:HomeScreenProps) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity
         activeOpacity={0.7}
         style={styles.menuButton}
-        onPress={() => console.log('Python REPL')}
+        onPress={() => navigation.navigate('REPLScreen', { language: 'python3' })}
       >
         <Text style={styles.menuButtonText}>Python REPL</Text>
       </TouchableOpacity>
