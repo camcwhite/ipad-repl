@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, View, TextInput, Text, NativeEventEmitter } from "react-native";
+import { StyleSheet, View, KeyboardAvoidingView, Keyboard, TextInput, Text, Platform, SafeAreaView, TouchableWithoutFeedback } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useHeaderHeight } from "@react-navigation/elements";
 import { StackParamList } from "../App";
 import { getResponse } from "../models/pythonREPL";
 
@@ -18,71 +19,77 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
   const consoleInput = useRef(undefined);
 
   return (
-    <View style={styles.container}>
-      {consoleHistoryDisplay.map((text) => {
-        return (
-          <Text style={styles.consoleText}>{text}</Text>
-        );
-      })}
-      <View style={styles.consoleInputContainer}>
-        <View style={styles.prefixContainer}>
-          <Text style={styles.consoleText}>
-            {getPrefix(consoleEditText.length - 1)}
-          </Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={useHeaderHeight() + 20}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView style={styles.container} onTouchStart={Keyboard.dismiss}>
+        <View style={styles.consoleContainer}>
+          <View style={styles.historyContainer}>
+            {consoleHistoryDisplay.map((text) => {
+              return (
+                <Text style={styles.consoleText}>{text}</Text>
+              );
+            })}
+          </View>
+          <View style={styles.consoleInputContainer}>
+            <Text style={styles.consoleText}>
+              {getPrefix(consoleEditText.length - 1)}
+            </Text>
+            <TextInput
+              style={{ ...styles.consoleText, width: '100%' }}
+              autoCorrect={false}
+              autoCapitalize="none"
+              multiline={true}
+              numberOfLines={1}
+              autoFocus={true}
+              value={consoleEditText.slice(-1)[0]}
+              onContentSizeChange={(event) => {
+                // console.log(event.nativeEvent.contentSize.height);
+              }}
+              onChangeText={(newText) => {
+                if (newText.slice(-1) === '\t')
+                  newText = newText.slice(0, -1) + '    ';
+                if (newText.slice(-1) !== '\n')
+                  setConsoleEditText([...consoleEditText.slice(0, -1), newText]);
+              }}
+              onKeyPress={(event) => {
+                console.log('Key ' + event.nativeEvent.key)
+                if (event.nativeEvent.key === 'Enter') {
+                  const response = getResponse(consoleEditText);
+                  if (response.responseComplete()) {
+                    const responseText = response.responseText();
+                    const prefix = getPrefix(consoleEditText.length - 1);
+                    setConsoleHistory([
+                      ...consoleHistory,
+                      ...consoleEditText,
+                      responseText
+                    ]);
+                    setConsoleHistoryDisplay([
+                      ...consoleHistoryDisplay,
+                      prefix + consoleEditText.slice(-1)[0],
+                      responseText
+                    ]);
+                    setConsoleEditText([""]);
+                    setConsoleEditNewLines(0);
+                  }
+                  else {
+                    setConsoleEditNewLines(consoleEditNewLines + 1);
+                    setConsoleHistoryDisplay([
+                      ...consoleHistoryDisplay,
+                      ...consoleEditText.slice(-1).map((text) => getPrefix(consoleEditText.length - 1) + text)]);
+                    setConsoleEditText([
+                      ...consoleEditText, ""
+                    ]);
+                  }
+                }
+              }}
+            />
+          </View>
         </View>
-        <TextInput
-          style={{...styles.consoleText}}
-          autoCorrect={false}
-          autoCapitalize="none"
-          multiline={true}
-          numberOfLines={1}
-          autoFocus={true}
-          value={consoleEditText.slice(-1)[0]}
-          onContentSizeChange={(event) => {
-            // console.log(event.nativeEvent.contentSize.height);
-          }}
-          onChangeText={(newText) => {
-            console.log(newText);
-            if (newText.slice(-1) === '\t')
-              newText = newText.slice(0, -1) + '    ';
-            if (newText.slice(-1) !== '\n')
-              setConsoleEditText([...consoleEditText.slice(0, -1), newText]);
-          }}
-          onKeyPress={(event) => {
-            console.log(`Key: ${event.nativeEvent.key}`);
-            if (event.nativeEvent.key === 'Enter') {
-              const response = getResponse(consoleEditText);
-              if (response.responseComplete()) {
-                console.log('COMPLETE ' + consoleEditText);
-                const responseText = response.responseText();
-                const prefix = getPrefix(consoleEditText.length - 1);
-                setConsoleHistory([
-                  ...consoleHistory, 
-                  ...consoleEditText, 
-                  responseText
-                ]);
-                setConsoleHistoryDisplay([
-                  ...consoleHistoryDisplay, 
-                  prefix + consoleEditText.slice(-1)[0],
-                  responseText
-                ]);
-                setConsoleEditText([""]);
-                setConsoleEditNewLines(0);
-              }
-              else {
-                setConsoleEditNewLines(consoleEditNewLines + 1);
-                setConsoleHistoryDisplay([
-                  ...consoleHistoryDisplay, 
-                  ...consoleEditText.slice(-1).map((text) => getPrefix(consoleEditText.length - 1) + text)]);
-                setConsoleEditText([
-                  ...consoleEditText, ""
-                ]);
-              }
-            }
-          }}
-        />
-      </View>
-    </View>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -90,6 +97,7 @@ const styles = StyleSheet.create({
   container: {
     height: '100%',
     marginLeft: '.5%',
+    flex: 1,
   },
   consoleText: {
     fontFamily: 'Courier New',
@@ -98,13 +106,14 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   consoleInputContainer: {
+    backgroundColor: '#DDD',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
-  prefixContainer: {
-    backgroundColor: '#DDD',
-    display: 'flex',
-    flexDirection: 'column',
+  consoleContainer: {
+    justifyContent: "flex-end",
+  },
+  historyContainer: {
   },
 });
