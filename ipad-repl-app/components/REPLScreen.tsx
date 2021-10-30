@@ -18,6 +18,10 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
   const [consoleEditNewLines, setConsoleEditNewLines] = useState(0);
   const consoleInput = useRef(undefined);
 
+  const clearConsole = () => {
+    setConsoleHistoryDisplay([]);
+  }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -51,7 +55,9 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
               onChangeText={(newText) => {
                 if (newText.slice(-1) === '\t')
                   newText = newText.slice(0, -1) + '    ';
-                if (newText.slice(-1) !== '\n')
+                if (newText.slice(-1) === '˚')
+                  clearConsole();
+                else if (newText.slice(-1) !== '\n')
                   setConsoleEditText([...consoleEditText.slice(0, -1), newText]);
               }}
               onKeyPress={(event) => {
