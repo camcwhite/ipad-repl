@@ -65,9 +65,9 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
       <SafeAreaView style={styles.container} onTouchStart={Keyboard.dismiss}>
         <View style={styles.consoleContainer}>
           <View style={styles.historyContainer}>
-            {consoleHistoryDisplay.map((text) => {
+            {consoleHistoryDisplay.map((text:string, index:number) => {
               return (
-                <Text style={styles.consoleText}>{text}</Text>
+                <Text key={index} style={styles.consoleText}>{text}</Text>
               );
             })}
           </View>

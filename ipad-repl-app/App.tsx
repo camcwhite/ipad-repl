@@ -3,7 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Button, TouchableOpacity, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { HomeScreen } from './components/HomeScreen';
 import { REPLScreen } from './components/REPLScreen';
 
@@ -15,13 +15,14 @@ export type StackParamList = {
 }
 
 const Stack = createNativeStackNavigator<StackParamList>();
+const Drawer = createDrawerNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="REPLScreen" component={REPLScreen} options={
+      <Drawer.Navigator screenOptions={{ headerShown: false }}>
+        {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
+        <Drawer.Screen name="REPLScreen" component={REPLScreen} options={
           { 
             headerShown: true,
             title: 'Python3',
@@ -39,7 +40,7 @@ export default function App() {
             ),
           }
         } />
-      </Stack.Navigator>
+      </Drawer.Navigator>
     </NavigationContainer>
   );
 }
