@@ -43,6 +43,8 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
           }}
           onChangeText={(newText) => {
             console.log(newText);
+            if (newText.slice(-1) === '\t')
+              newText = newText.slice(0, -1) + '    ';
             if (newText.slice(-1) !== '\n')
               setConsoleEditText([...consoleEditText.slice(0, -1), newText]);
           }}
