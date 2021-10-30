@@ -50,7 +50,7 @@ class REPLUnfinishedResponse implements REPLResponse {
 }
 
 export function getResponse(input:Array<string>): REPLResponse {
-  if (input.slice(-1)[0].slice(-1) === ':' || input.length > 0 && input.slice(-1)[0] !== '') 
+  if (input.slice(-1)[0].slice(-1) === ':' || input.length > 1 && input.slice(-1)[0] !== '') 
     return new REPLUnfinishedResponse();
   else return new REPLTextResponse(input.join('\n'));
 }

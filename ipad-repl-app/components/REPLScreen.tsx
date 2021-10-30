@@ -49,9 +49,6 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
               numberOfLines={1}
               autoFocus={true}
               value={consoleEditText.slice(-1)[0]}
-              onContentSizeChange={(event) => {
-                // console.log(event.nativeEvent.contentSize.height);
-              }}
               onChangeText={(newText) => {
                 if (newText.slice(-1) === '\t')
                   newText = newText.slice(0, -1) + '    ';
