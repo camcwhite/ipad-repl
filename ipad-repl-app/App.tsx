@@ -1,13 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, TouchableOpacity, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { HomeScreen } from './components/HomeScreen';
 import { REPLScreen } from './components/REPLScreen';
-import { getActiveTheme } from './config';
+import { getActiveTheme, loadActiveTheme } from './config';
 import { SettingsScreen } from './components/SettingsScreen';
+import { getTheme, useTheme } from './themes';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const settingsImage = require('./assets/settings.png');
 
@@ -20,11 +22,25 @@ const Stack = createNativeStackNavigator<StackParamList>();
 const Drawer = createDrawerNavigator();
 
 export default function App() {
+  const [activeTheme, setActiveTheme] = useState(getTheme('Monokai'));
+
+  const loadTheme = async () => {
+    const theme = await AsyncStorage.getItem('@active_theme');
+    if (theme !== null)
+      setActiveTheme(getTheme(theme));
+  }
+  useEffect(() => {
+    // setActiveTheme(useTheme());
+    loadTheme();
+  }, []);
+
+  console.log(`Active theme in App.tsx: ${activeTheme.name}`);
+
   return (
     <NavigationContainer>
       <Drawer.Navigator
-        drawerContent={(props) => <CustomDrawerContent {...props} />}
-        screenOptions={{ 
+        drawerContent={(props) => <CustomDrawerContent {...{ ...props, activeTheme }} />}
+        screenOptions={{
           headerShown: false,
           drawerStyle: styles.drawerStyle,
           drawerActiveTintColor: getActiveTheme().colors.textBackground,
@@ -38,7 +54,7 @@ export default function App() {
             headerTitle: 'Python3',
             title: 'REPL',
             headerStyle: styles.headerContainer,
-            headerTintColor: getActiveTheme().colors.primary,
+            headerTintColor: activeTheme.colors.primary,
             headerRight: () => (
               <TouchableOpacity
                 activeOpacity={0.7}
@@ -59,7 +75,7 @@ export default function App() {
             headerShown: true,
             title: 'Settings',
             headerStyle: styles.headerContainer,
-            headerTintColor: getActiveTheme().colors.tertiary,
+            headerTintColor: activeTheme.colors.tertiary,
           }
         } />
       </Drawer.Navigator>
@@ -73,7 +89,7 @@ function CustomDrawerContent(props) {
       <DrawerItem
         label='iREPL'
         style={styles.drawerTitleView}
-        labelStyle={styles.drawerTitle}
+        labelStyle={{ ...styles.drawerTitle, color: props.activeTheme.colors.secondary }}
         onPress={() => { }}
       />
       <DrawerItemList {...props} />
@@ -100,7 +116,6 @@ const styles = StyleSheet.create({
     marginBottom: '20%',
   },
   drawerTitle: {
-    color: getActiveTheme().colors.secondary,
     fontFamily: 'Courier New',
     fontWeight: 'bold',
     fontSize: 48,

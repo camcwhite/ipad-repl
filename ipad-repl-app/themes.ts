@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import { loadActiveTheme, saveActiveTheme } from "./config";
+
 export type Color = string;
 
 export type Theme = {
@@ -34,12 +37,12 @@ const themes: Array<Theme> =
       name: 'Solarized Light',
       colors: {
         backgroundPrimary: '#FDF6E3',
-        backgroundSecondary: '#2e2e2e',
-        fontPrimary: '#d6d6d6',
+        backgroundSecondary: '#ECE7D5',
+        fontPrimary: '#657A81',
         textBackground: '#9e86c8',
-        primary: '#b4d273',
-        secondary: '#b05279',
-        tertiary: '#6c99bb',
+        primary: '#586E75',
+        secondary: '#B58900',
+        tertiary: '#2AA198',
       }
     },
   ];
@@ -51,5 +54,18 @@ const themes: Array<Theme> =
  * @returns a Theme 
  */
 export function getTheme(name: string): Theme {
-  return themes.filter((theme) => theme.name === name)[0];
+  const theme = themes.filter((theme) => theme.name === name)[0];
+  if (theme) return theme;
+  else return getTheme('Monokai');
+}
+
+export const useTheme = ():Theme => {
+  const [activeTheme, setActiveTheme] = useState(themes[0]);
+
+  useEffect(() => {
+    loadActiveTheme()
+      .then(setActiveTheme);
+  }, [])
+
+  return activeTheme;
 }

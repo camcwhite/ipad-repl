@@ -5,7 +5,7 @@ import { useHeaderHeight } from "@react-navigation/elements";
 import { StackParamList } from "../App";
 import { getResponse } from "../models/pythonREPL";
 import { getActiveTheme } from "../config";
-import { Theme } from "../assets/themes";
+import { Theme, useTheme } from "../themes";
 
 export type REPLScreenNavigationProp = NativeStackNavigationProp<StackParamList, 'REPLScreen'>
 
@@ -25,6 +25,8 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
   const [consoleHistoryIndex, setConsoleHistoryIndex] = useState(-1);
   const [consoleEditTextCache, setConsoleEditTextCache] = useState("");
   const consoleInput = useRef(undefined);
+
+  const activeTheme = useTheme();
 
   const clearConsole = () => {
     setConsoleHistoryDisplay([]);
