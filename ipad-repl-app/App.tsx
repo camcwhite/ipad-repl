@@ -6,8 +6,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { HomeScreen } from './components/HomeScreen';
 import { REPLScreen } from './components/REPLScreen';
-import { getActiveTheme } from './config';
-import { SettingsScreen } from './components/SettingsScreen';
+import { AboutScreen } from './components/AboutScreen';
+
+import { Colors } from './assets/colors';
 
 const settingsImage = require('./assets/settings.png');
 
@@ -27,7 +28,7 @@ export default function App() {
         screenOptions={{ 
           headerShown: false,
           drawerStyle: styles.drawerStyle,
-          drawerActiveTintColor: getActiveTheme().colors.textBackground,
+          drawerActiveTintColor: Colors.textBackground,
           drawerLabelStyle: styles.drawerLabelStyle,
         }}
       >
@@ -38,28 +39,27 @@ export default function App() {
             headerTitle: 'Python3',
             title: 'REPL',
             headerStyle: styles.headerContainer,
-            headerTintColor: getActiveTheme().colors.primary,
-            headerRight: () => (
-              <TouchableOpacity
-                activeOpacity={0.7}
-                style={styles.headerSettingsButton}
-                onPress={() => alert('This is a button!')}
-              >
-                <Image
-                  style={styles.settingsImage}
-                  source={settingsImage}
-                />
-              </TouchableOpacity>
-            ),
+            headerTintColor: Colors.primary,
+            // headerRight: () => (
+            //   <TouchableOpacity
+            //     activeOpacity={0.7}
+            //     style={styles.headerSettingsButton}
+            //     onPress={() => alert('This is a button!')}
+            //   >
+            //     <Image
+            //       style={styles.settingsImage}
+            //       source={settingsImage}
+            //     />
+            //   </TouchableOpacity>
+            // ),
           }
         } />
 
-        <Drawer.Screen name="Settings" component={SettingsScreen} options={
+        <Drawer.Screen name="About" component={AboutScreen} options={
           {
             headerShown: true,
-            title: 'Settings',
             headerStyle: styles.headerContainer,
-            headerTintColor: getActiveTheme().colors.tertiary,
+            headerTintColor: Colors.tertiary,
           }
         } />
       </Drawer.Navigator>
@@ -83,7 +83,7 @@ function CustomDrawerContent(props) {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: getActiveTheme().colors.backgroundPrimary,
+    backgroundColor: Colors.backgroundPrimary,
   },
   headerSettingsButton: {
     marginRight: 10,
@@ -91,16 +91,16 @@ const styles = StyleSheet.create({
   settingsImage: {
     width: 20,
     height: 20,
-    tintColor: getActiveTheme().colors.primary,
+    tintColor: Colors.primary,
   },
   drawerStyle: {
-    backgroundColor: getActiveTheme().colors.backgroundPrimary,
+    backgroundColor: Colors.backgroundPrimary,
   },
   drawerTitleView: {
     marginBottom: '20%',
   },
   drawerTitle: {
-    color: getActiveTheme().colors.secondary,
+    color: Colors.secondary,
     fontFamily: 'Courier New',
     fontWeight: 'bold',
     fontSize: 48,
@@ -108,6 +108,6 @@ const styles = StyleSheet.create({
   },
   drawerLabelStyle: {
     fontFamily: 'Arial',
-    color: getActiveTheme().colors.secondary,
+    color: Colors.secondary,
   },
 });

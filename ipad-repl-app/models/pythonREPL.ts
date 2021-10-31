@@ -23,7 +23,7 @@ class REPLTextResponse implements REPLResponse {
    * @inheritdoc
    */
   public responseText():string {
-    return `REPL Response. Input was:\n${this.inputText}`;
+    return `${this.inputText}`;
   }
 
   /**
