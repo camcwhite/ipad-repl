@@ -7,6 +7,7 @@ import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerI
 import { HomeScreen } from './components/HomeScreen';
 import { REPLScreen } from './components/REPLScreen';
 import { getActiveTheme } from './config';
+import { SettingsScreen } from './components/SettingsScreen';
 
 const settingsImage = require('./assets/settings.png');
 
@@ -23,7 +24,12 @@ export default function App() {
     <NavigationContainer>
       <Drawer.Navigator
         drawerContent={(props) => <CustomDrawerContent {...props} />}
-        screenOptions={{ headerShown: false }}
+        screenOptions={{ 
+          headerShown: false,
+          drawerStyle: styles.drawerStyle,
+          drawerActiveTintColor: getActiveTheme().colors.textBackground,
+          drawerLabelStyle: styles.drawerLabelStyle,
+        }}
       >
         {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
         <Drawer.Screen name="REPLScreen" component={REPLScreen} options={
@@ -47,6 +53,15 @@ export default function App() {
             ),
           }
         } />
+
+        <Drawer.Screen name="Settings" component={SettingsScreen} options={
+          {
+            headerShown: true,
+            title: 'Settings',
+            headerStyle: styles.headerContainer,
+            headerTintColor: getActiveTheme().colors.tertiary,
+          }
+        } />
       </Drawer.Navigator>
     </NavigationContainer>
   );
@@ -62,10 +77,6 @@ function CustomDrawerContent(props) {
         onPress={() => { }}
       />
       <DrawerItemList {...props} />
-      <DrawerItem
-        label='Settings'
-        onPress={() => console.log('Settings')}
-      />
     </DrawerContentScrollView>
   );
 }
@@ -82,13 +93,21 @@ const styles = StyleSheet.create({
     height: 20,
     tintColor: getActiveTheme().colors.primary,
   },
+  drawerStyle: {
+    backgroundColor: getActiveTheme().colors.backgroundPrimary,
+  },
   drawerTitleView: {
     marginBottom: '20%',
   },
   drawerTitle: {
+    color: getActiveTheme().colors.secondary,
     fontFamily: 'Courier New',
     fontWeight: 'bold',
     fontSize: 48,
     textAlign: 'center',
+  },
+  drawerLabelStyle: {
+    fontFamily: 'Arial',
+    color: getActiveTheme().colors.secondary,
   },
 });

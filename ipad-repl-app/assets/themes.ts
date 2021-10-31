@@ -7,7 +7,10 @@ export type Theme = {
     backgroundPrimary: Color,
     backgroundSecondary: Color,
     fontPrimary: Color,
+    textBackground: Color,
     primary: Color,
+    secondary: Color,
+    tertiary: Color,
   }
 };
 
@@ -15,12 +18,28 @@ const themes: Array<Theme> =
   [
     {
       dark: true,
-      name: 'Dark 1',
+      name: 'Monokai',
       colors: {
-        backgroundPrimary: '#39375B',
-        backgroundSecondary: '#745C97',
-        fontPrimary: '#F5B0CB',
-        primary: '#F5B0CB',
+        backgroundPrimary: '#2e2e2e',
+        backgroundSecondary: '#2e2e2e',
+        fontPrimary: '#d6d6d6',
+        textBackground: '#9e86c8',
+        primary: '#b4d273',
+        secondary: '#b05279',
+        tertiary: '#6c99bb',
+      }
+    },
+    {
+      dark: false,
+      name: 'Solarized Light',
+      colors: {
+        backgroundPrimary: '#FDF6E3',
+        backgroundSecondary: '#2e2e2e',
+        fontPrimary: '#d6d6d6',
+        textBackground: '#9e86c8',
+        primary: '#b4d273',
+        secondary: '#b05279',
+        tertiary: '#6c99bb',
       }
     },
   ];
