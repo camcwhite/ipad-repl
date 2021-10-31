@@ -4,6 +4,8 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { StackParamList } from "../App";
 import { getResponse } from "../models/pythonREPL";
+import { getActiveTheme } from "../config";
+import { Theme } from "../assets/themes";
 
 export type REPLScreenNavigationProp = NativeStackNavigationProp<StackParamList, 'REPLScreen'>
 
@@ -28,14 +30,14 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
     setConsoleHistoryDisplay([]);
   }
 
-  const incrementHistoryIndex = (increment:number):void  => {
+  const incrementHistoryIndex = (increment: number): void => {
     let newConsoleEditText = undefined;
     console.log('incrementing History Index: ' + consoleHistoryIndex);
     console.log(consoleHistory);
     console.log(consoleHistory.length);
-    if (consoleHistoryIndex === 0 && increment === -1 || 
-        consoleHistoryIndex === -1 && increment === 1) return; 
-    if (consoleHistoryIndex === -1 && increment === -1) { 
+    if (consoleHistoryIndex === 0 && increment === -1 ||
+      consoleHistoryIndex === -1 && increment === 1) return;
+    if (consoleHistoryIndex === -1 && increment === -1) {
       setConsoleHistoryIndex(consoleHistory.length - 1);
       setConsoleEditTextCache(consoleEditText.slice(-1)[0]);
       newConsoleEditText = consoleHistory[consoleHistory.length - 1];
@@ -48,7 +50,7 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
     else if (consoleHistoryIndex !== -1) {
       newConsoleEditText = consoleHistory[consoleHistoryIndex + increment];
       setConsoleHistoryIndex(consoleHistoryIndex + increment);
-    } 
+    }
     if (newConsoleEditText !== undefined) {
       setConsoleEditText([...consoleEditText.slice(0, -1), newConsoleEditText]);
       console.log('updating edit text');
@@ -60,12 +62,12 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={useHeaderHeight() + 20}
-      style={{ flex: 1 }}
+      style={styles.outerContainer}
     >
       <SafeAreaView style={styles.container} onTouchStart={Keyboard.dismiss}>
         <View style={styles.consoleContainer}>
           <View style={styles.historyContainer}>
-            {consoleHistoryDisplay.map((text:string, index:number) => {
+            {consoleHistoryDisplay.map((text: string, index: number) => {
               return (
                 <Text key={index} style={styles.consoleText}>{text}</Text>
               );
@@ -83,6 +85,7 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
               numberOfLines={1}
               autoFocus={true}
               value={consoleEditText.slice(-1)[0]}
+              selectionColor={getActiveTheme().colors.primary}
               onChangeText={(newText) => {
                 console.log(newText);
                 if (newText.slice(-1) === '\t')
@@ -91,7 +94,7 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
                   clearConsole();
                 else if (newText.slice(-1) === UP_ARROW_KEY) {
                   console.log("inc");
-                  incrementHistoryIndex(-1); 
+                  incrementHistoryIndex(-1);
                 }
                 else if (newText.slice(-1) === DOWN_ARROW_KEY) {
                   console.log('dec');
@@ -141,19 +144,24 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
 };
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    backgroundColor: getActiveTheme().colors.backgroundPrimary,
+    flex: 1,
+  },
   container: {
     height: '100%',
     marginLeft: '.5%',
     flex: 1,
   },
   consoleText: {
+    color: getActiveTheme().colors.fontPrimary,
     fontFamily: 'Courier New',
+    fontWeight: 'bold',
     textAlignVertical: 'center',
     fontSize: 30,
     paddingVertical: 5,
   },
   consoleInputContainer: {
-    backgroundColor: '#DDD',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'flex-start',

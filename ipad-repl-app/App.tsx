@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { HomeScreen } from './components/HomeScreen';
 import { REPLScreen } from './components/REPLScreen';
+import { getActiveTheme } from './config';
 
 const settingsImage = require('./assets/settings.png');
 
@@ -31,6 +32,7 @@ export default function App() {
             headerTitle: 'Python3',
             title: 'REPL',
             headerStyle: styles.headerContainer,
+            headerTintColor: getActiveTheme().colors.primary,
             headerRight: () => (
               <TouchableOpacity
                 activeOpacity={0.7}
@@ -70,15 +72,15 @@ function CustomDrawerContent(props) {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: '#f00',
+    backgroundColor: getActiveTheme().colors.backgroundPrimary,
   },
   headerSettingsButton: {
     marginRight: 10,
   },
   settingsImage: {
-    width: 30,
-    height: 30,
-    tintColor: "blue",
+    width: 20,
+    height: 20,
+    tintColor: getActiveTheme().colors.primary,
   },
   drawerTitleView: {
     marginBottom: '20%',
