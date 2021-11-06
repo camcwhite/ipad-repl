@@ -3,7 +3,8 @@ from .models import REPLHistoryEntry, REPLSessionInfo
 from code import InteractiveInterpreter
 from io import StringIO
 from contextlib import redirect_stderr, redirect_stdout
-from datetime import datetime
+# from datetime import datetime
+from django.utils import timezone
 
 T = TypeVar('T', bound='REPLSession')
 
@@ -25,9 +26,7 @@ class REPLSession:
             for entry in repl_info.entries.all():
                 self._execute_entry(entry)
 
-    # @property
-    # def session(self):
-    #     return self._session    
+    _cached_sessions = {}
 
     @classmethod
     def load_session(cls:Type[T], id:int) -> T:
@@ -38,10 +37,14 @@ class REPLSession:
         TODO: Add caching of sessions so all commands don't have to be re-executed
         every time a command is run
         '''
-        # if id == 0:
-        #     return InteractiveInterpreter()
-        # session_model = cls.objects.get(id=id)
-        return cls(repl_info=REPLSessionInfo.objects.get(id=id))
+        session_info = REPLSessionInfo.objects.get(id=id)
+        if id in cls._cached_sessions:
+            print('getting cached session')
+            session = cls._cached_sessions[id]
+        else:
+            session = cls(repl_info=session_info)
+            cls._cached_sessions[id] = session
+        return session 
 
     def save(self) -> None:
         '''
@@ -65,8 +68,12 @@ class REPLSession:
         output_stream = StringIO()
         with redirect_stdout(output_stream):
             with redirect_stderr(output_stream):
-                executed_at = datetime.now()
-                need_more = self.session.runsource(code)
+                executed_at = timezone.now()
+                try:
+                    need_more = self.session.runsource(code)
+                except SystemExit as e:
+                    print('Please use the button to exit.')
+                    need_more = False
         if save and not need_more:
             REPLHistoryEntry(code=code, session_info=self.session_info, executed_at=executed_at).save()
         return output_stream.getvalue(), need_more
