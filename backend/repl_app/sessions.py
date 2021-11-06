@@ -2,7 +2,7 @@ from typing import Tuple, Type, TypeVar
 from .models import REPLHistoryEntry, REPLSessionInfo
 from code import compile_command
 from traceback import format_exception, print_exception
-from RestrictedPython import safe_globals
+from RestrictedPython import utility_builtins
 from io import StringIO
 from contextlib import redirect_stderr, redirect_stdout
 import sys
@@ -82,7 +82,7 @@ class REPLSession:
         with redirect_stdout(output_stream), redirect_stderr(output_stream):
             executed_at = timezone.now()
             need_more = False
-            compiled_code = None
+            compiled_code = False
             try:
                 compiled_code = compile_command(code)
             except SyntaxError as e:
@@ -90,11 +90,11 @@ class REPLSession:
                 exc_lines = exc_data[0:1] + exc_data[6:]
                 print(''.join(exc_lines))
 
-            if compiled_code is not None:
+            if compiled_code is not False:
                 try:
                     need_more = compiled_code == None
                     if compiled_code is not None:
-                        exec(compiled_code, safe_globals, self._locals)
+                        exec(compiled_code, utility_builtins, self._locals)
                 except SystemExit as e:
                     print('Please use the button to exit.')
                 except Exception as e:
@@ -104,7 +104,7 @@ class REPLSession:
         if save and not need_more:
             REPLHistoryEntry(code=code, session_info=self.session_info, executed_at=executed_at).save()
         out = output_stream.getvalue()
-        if out.endswith('\n'):
+        while out.endswith('\n'):
             out = out[:-1]
-        print(out)
+        print(repr(out),flush=True)
         return out, need_more
