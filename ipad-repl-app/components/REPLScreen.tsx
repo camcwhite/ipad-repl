@@ -3,8 +3,10 @@ import { StyleSheet, View, ScrollView, KeyboardAvoidingView, Keyboard, TextInput
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { StackParamList } from "../App";
-import { getResponse } from "../models/pythonREPL";
+import { getResponse, REPLTextResponse } from "../models/pythonREPL";
 import { Colors } from "../assets/colors";
+import { useFetchPost } from "./useFetchPost";
+import { API_URL } from "../env";
 
 export type REPLScreenNavigationProp = NativeStackNavigationProp<StackParamList, 'REPLScreen'>
 
@@ -14,7 +16,7 @@ const CLEAR_CONSOLE_KEY = '˚';
 const UP_ARROW_KEY = '…';
 const DOWN_ARROW_KEY = '≥';
 const SPECIAL_CHARS = new Set([CLEAR_CONSOLE_KEY, UP_ARROW_KEY, DOWN_ARROW_KEY]);
-const getPrefix = (index:number) => (index === 0) ? START_PREFIX : CONTINUED_PREFIX;
+const getPrefix = (index: number) => (index === 0) ? START_PREFIX : CONTINUED_PREFIX;
 
 export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
   const [consoleHistory, setConsoleHistory] = useState(new Array<string>());
@@ -23,6 +25,7 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
   const [consoleEditNewLines, setConsoleEditNewLines] = useState(0);
   const [consoleHistoryIndex, setConsoleHistoryIndex] = useState(-1);
   const [consoleEditTextCache, setConsoleEditTextCache] = useState("");
+  const [replReponsePromise, setReplResponsePromise] = useState(undefined);
   const consoleHistoryScrollView = useRef<ScrollView>(null);
 
   const clearConsole = () => {
@@ -87,52 +90,49 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
               value={consoleEditText.slice(-1)[0]}
               selectionColor={Colors.primary}
               onChangeText={(newText) => {
-                console.log(newText);
                 if (newText.slice(-1) === '\t')
                   newText = newText.slice(0, -1) + '    ';
                 if (newText.slice(-1) === CLEAR_CONSOLE_KEY)
                   clearConsole();
                 else if (newText.slice(-1) === UP_ARROW_KEY) {
-                  console.log("inc");
                   incrementHistoryIndex(-1);
                 }
                 else if (newText.slice(-1) === DOWN_ARROW_KEY) {
-                  console.log('dec');
                   incrementHistoryIndex(1);
                 }
                 else if (newText.slice(-1) !== '\n') {
-                  console.log('cov');
                   setConsoleEditText([...consoleEditText.slice(0, -1), newText]);
                 }
               }}
               onKeyPress={(event) => {
                 if (event.nativeEvent.key === 'Enter') {
-                  const response = getResponse(consoleEditText);
-                  if (response.responseComplete()) {
-                    const responseText = response.responseText();
-                    const prefix = getPrefix(consoleEditText.length - 1);
-                    setConsoleHistory([
-                      ...consoleHistory,
-                      ...consoleEditText,
-                    ]);
-                    setConsoleHistoryDisplay([
-                      ...consoleHistoryDisplay,
-                      prefix + consoleEditText.slice(-1)[0],
-                      responseText
-                    ]);
-                    setConsoleHistoryIndex(-1);
-                    setConsoleEditText([""]);
-                    setConsoleEditNewLines(0);
-                  }
-                  else {
-                    setConsoleEditNewLines(consoleEditNewLines + 1);
-                    setConsoleHistoryDisplay([
-                      ...consoleHistoryDisplay,
-                      ...consoleEditText.slice(-1).map((text) => getPrefix(consoleEditText.length - 1) + text)]);
-                    setConsoleEditText([
-                      ...consoleEditText, ""
-                    ]);
-                  }
+                  getResponse(consoleEditText, (response) => {
+                    if (response.responseComplete()) {
+                      const responseText = response.responseText();
+                      const prefix = getPrefix(consoleEditText.length - 1);
+                      setConsoleHistory([
+                        ...consoleHistory,
+                        ...consoleEditText,
+                      ]);
+                      setConsoleHistoryDisplay([
+                        ...consoleHistoryDisplay,
+                        prefix + consoleEditText.slice(-1)[0],
+                        responseText
+                      ]);
+                      setConsoleHistoryIndex(-1);
+                      setConsoleEditText([""]);
+                      setConsoleEditNewLines(0);
+                    }
+                    else {
+                      setConsoleEditNewLines(consoleEditNewLines + 1);
+                      setConsoleHistoryDisplay([
+                        ...consoleHistoryDisplay,
+                        ...consoleEditText.slice(-1).map((text) => getPrefix(consoleEditText.length - 1) + text)]);
+                      setConsoleEditText([
+                        ...consoleEditText, ""
+                      ]);
+                    }
+                  })
                 }
               }}
             />
