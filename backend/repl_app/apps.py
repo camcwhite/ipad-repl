@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class PythonreplConfig(AppConfig):
+class REPLAppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'pythonrepl'
+    name = 'repl_app'

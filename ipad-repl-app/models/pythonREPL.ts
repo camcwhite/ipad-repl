@@ -1,4 +1,3 @@
-import { useFetchPost } from "../components/useFetchPost";
 import {defer, Deferred} from "q";
 import { API_URL } from "../env";
 
@@ -58,11 +57,10 @@ function makeRequest(inputText:string): Promise<Response> {
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code: inputText }),
+    body: JSON.stringify({ code: inputText, session_id: 1 }),
   };
   const url = API_URL + '/python/new-command/'
   console.log(`making fetch: ${url}`);
-  // return fetch(url);
   return fetch(url, requestOptions);
 }
 
@@ -76,7 +74,7 @@ export function getResponse(input:Array<string>, callback:(response: REPLRespons
   //   return new REPLUnfinishedResponse();
   // else return new REPLTextResponse(input.join('\n'));
   makeRequest(input.join('\n'))
-    .then((response) => response.text())
-    .then((text) => new REPLTextResponse(text))
+    .then((response) => response.json())
+    .then((data) => (data.unfinished ? new REPLUnfinishedResponse() : new REPLTextResponse(data.output)))
     .then(callback);
 }

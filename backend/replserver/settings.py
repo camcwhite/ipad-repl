@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'invalid secret key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.31.106.40']
+ALLOWED_HOSTS = ['10.31.106.40', 'localhost']
 
 
 # Application definition
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'pythonrepl',
+    'repl_app',
 ]
 
 MIDDLEWARE = [

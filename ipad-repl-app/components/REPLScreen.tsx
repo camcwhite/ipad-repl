@@ -5,7 +5,6 @@ import { useHeaderHeight } from "@react-navigation/elements";
 import { StackParamList } from "../App";
 import { getResponse, REPLTextResponse } from "../models/pythonREPL";
 import { Colors } from "../assets/colors";
-import { useFetchPost } from "./useFetchPost";
 import { API_URL } from "../env";
 
 export type REPLScreenNavigationProp = NativeStackNavigationProp<StackParamList, 'REPLScreen'>
@@ -25,7 +24,6 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
   const [consoleEditNewLines, setConsoleEditNewLines] = useState(0);
   const [consoleHistoryIndex, setConsoleHistoryIndex] = useState(-1);
   const [consoleEditTextCache, setConsoleEditTextCache] = useState("");
-  const [replReponsePromise, setReplResponsePromise] = useState(undefined);
   const consoleHistoryScrollView = useRef<ScrollView>(null);
 
   const clearConsole = () => {
