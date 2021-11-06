@@ -24,7 +24,13 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
   const [consoleEditNewLines, setConsoleEditNewLines] = useState(0);
   const [consoleHistoryIndex, setConsoleHistoryIndex] = useState(-1);
   const [consoleEditTextCache, setConsoleEditTextCache] = useState("");
+  // TODO: refactor into object for python repl that maintains/creates a new session
+  const [apiSessionID, setAPISessionID] = useState(0)
   const consoleHistoryScrollView = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    setAPISessionID(1);
+  }, [])
 
   const clearConsole = () => {
     setConsoleHistoryDisplay([]);
@@ -84,6 +90,7 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
               multiline={true}
               numberOfLines={1}
               scrollEnabled={true}
+              keyboardType={'ascii-capable'}
               autoFocus={true}
               value={consoleEditText.slice(-1)[0]}
               selectionColor={Colors.primary}
@@ -104,9 +111,10 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
               }}
               onKeyPress={(event) => {
                 if (event.nativeEvent.key === 'Enter') {
-                  getResponse(consoleEditText, (response) => {
+                  getResponse(consoleEditText, apiSessionID, (response) => {
                     if (response.responseComplete()) {
                       const responseText = response.responseText();
+                      // if (responseText.length === 0) { return; }
                       const prefix = getPrefix(consoleEditText.length - 1);
                       setConsoleHistory([
                         ...consoleHistory,
@@ -115,7 +123,7 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
                       setConsoleHistoryDisplay([
                         ...consoleHistoryDisplay,
                         prefix + consoleEditText.slice(-1)[0],
-                        responseText
+                        ...(responseText.length > 0 ? [responseText] : [])
                       ]);
                       setConsoleHistoryIndex(-1);
                       setConsoleEditText([""]);

@@ -1,12 +1,29 @@
 from typing import Tuple, Type, TypeVar
 from .models import REPLHistoryEntry, REPLSessionInfo
-from code import InteractiveInterpreter
+from code import compile_command
+from traceback import format_exception, print_exception
+from RestrictedPython import safe_globals
 from io import StringIO
 from contextlib import redirect_stderr, redirect_stdout
+import sys
 # from datetime import datetime
 from django.utils import timezone
 
 T = TypeVar('T', bound='REPLSession')
+
+class StringBuffer(StringIO):
+
+    def __init__(self, default_out, *args, **kwargs):
+        self.default_out = default_out
+        super().__init__(*args, **kwargs)
+
+    def write(self, lines, *args):
+        _stdout = sys.stdout
+        sys.stdout = self.default_out
+        print(f'writing: {lines}')
+        sys.stdout = _stdout
+        super().write(lines, *args)
+
 
 class REPLSession:
     '''
@@ -19,8 +36,8 @@ class REPLSession:
 
         If repl_history is provided, executes all the commands in repl_history
         ''' 
-        print('creating new interpreter', flush=True)
-        self.session = InteractiveInterpreter() 
+        # self.session = InteractiveInterpreter() 
+        self._locals = {}
         self.session_info = repl_info
         if repl_info:
             for entry in repl_info.entries.all():
@@ -33,13 +50,9 @@ class REPLSession:
         '''
         Loads the session with id `id` or returns a new session if
         `id` is 0
-
-        TODO: Add caching of sessions so all commands don't have to be re-executed
-        every time a command is run
         '''
         session_info = REPLSessionInfo.objects.get(id=id)
         if id in cls._cached_sessions:
-            print('getting cached session')
             session = cls._cached_sessions[id]
         else:
             session = cls(repl_info=session_info)
@@ -66,14 +79,32 @@ class REPLSession:
         info history
         '''
         output_stream = StringIO()
-        with redirect_stdout(output_stream):
-            with redirect_stderr(output_stream):
-                executed_at = timezone.now()
+        with redirect_stdout(output_stream), redirect_stderr(output_stream):
+            executed_at = timezone.now()
+            need_more = False
+            compiled_code = None
+            try:
+                compiled_code = compile_command(code)
+            except SyntaxError as e:
+                exc_data = format_exception(e)
+                exc_lines = exc_data[0:1] + exc_data[6:]
+                print(''.join(exc_lines))
+
+            if compiled_code is not None:
                 try:
-                    need_more = self.session.runsource(code)
+                    need_more = compiled_code == None
+                    if compiled_code is not None:
+                        exec(compiled_code, safe_globals, self._locals)
                 except SystemExit as e:
                     print('Please use the button to exit.')
-                    need_more = False
+                except Exception as e:
+                    exc_data = format_exception(e)
+                    exc_lines = exc_data[0:1] + exc_data[2:]
+                    print(''.join(exc_lines))
         if save and not need_more:
             REPLHistoryEntry(code=code, session_info=self.session_info, executed_at=executed_at).save()
-        return output_stream.getvalue(), need_more
+        out = output_stream.getvalue()
+        if out.endswith('\n'):
+            out = out[:-1]
+        print(out)
+        return out, need_more

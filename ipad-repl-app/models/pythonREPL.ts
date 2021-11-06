@@ -53,14 +53,13 @@ class REPLUnfinishedResponse implements REPLResponse {
 
 }
 
-function makeRequest(inputText:string): Promise<Response> {
+function makeRequest(inputText:string, sessionID:number): Promise<Response> {
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code: inputText, session_id: 1 }),
+    body: JSON.stringify({ code: inputText, session_id: sessionID }),
   };
   const url = API_URL + '/python/new-command/'
-  console.log(`making fetch: ${url}`);
   return fetch(url, requestOptions);
 }
 
@@ -69,11 +68,11 @@ function makeRequest(inputText:string): Promise<Response> {
  * @param input lines of input code
  * @param callback function to call when the backend responds to the input 
  */
-export function getResponse(input:Array<string>, callback:(response: REPLResponse) => void): void {
+export function getResponse(input:Array<string>, sessionID:number, callback:(response: REPLResponse) => void): void {
   // if (input.slice(-1)[0].slice(-1) === ':' || input.length > 1 && input.slice(-1)[0] !== '') 
   //   return new REPLUnfinishedResponse();
   // else return new REPLTextResponse(input.join('\n'));
-  makeRequest(input.join('\n'))
+  makeRequest(input.join('\n'), sessionID)
     .then((response) => response.json())
     .then((data) => (data.unfinished ? new REPLUnfinishedResponse() : new REPLTextResponse(data.output)))
     .then(callback);
