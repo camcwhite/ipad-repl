@@ -58,12 +58,12 @@ function makeRequest(inputText:string): Promise<Response> {
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(inputText),
+    body: JSON.stringify({ code: inputText }),
   };
   const url = API_URL + '/python/new-command/'
   console.log(`making fetch: ${url}`);
-  return fetch(url);
-  // return fetch(url, requestOptions);
+  // return fetch(url);
+  return fetch(url, requestOptions);
 }
 
 /**
