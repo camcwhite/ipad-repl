@@ -17,7 +17,7 @@ export interface REPLResponse {
 
 class REPLTextResponse implements REPLResponse {
 
-  public constructor(public readonly inputText) {}
+  public constructor(public readonly inputText:string) {}
 
   /**
    * @inheritdoc
