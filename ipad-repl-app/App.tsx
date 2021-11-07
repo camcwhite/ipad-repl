@@ -1,26 +1,25 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, Button, TouchableOpacity, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+// import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
-import { HomeScreen } from './components/HomeScreen';
 import { REPLScreen } from './components/REPLScreen';
 import { AboutScreen } from './components/AboutScreen';
 
 import { Colors } from './assets/colors';
 
-const settingsImage = require('./assets/settings.png');
 
 export type StackParamList = {
   Home: undefined;
   REPLScreen: { language: string }
 }
 
-const Stack = createNativeStackNavigator<StackParamList>();
+// const Stack = createNativeStackNavigator<StackParamList>();
 const Drawer = createDrawerNavigator();
 
 export default function App() {
+  const [data, setData] = useState("")
+
   return (
     <NavigationContainer>
       <Drawer.Navigator
@@ -40,18 +39,6 @@ export default function App() {
             title: 'REPL',
             headerStyle: styles.headerContainer,
             headerTintColor: Colors.primary,
-            // headerRight: () => (
-            //   <TouchableOpacity
-            //     activeOpacity={0.7}
-            //     style={styles.headerSettingsButton}
-            //     onPress={() => alert('This is a button!')}
-            //   >
-            //     <Image
-            //       style={styles.settingsImage}
-            //       source={settingsImage}
-            //     />
-            //   </TouchableOpacity>
-            // ),
           }
         } />
 
@@ -67,7 +54,7 @@ export default function App() {
   );
 }
 
-function CustomDrawerContent(props) {
+function CustomDrawerContent(props:any) {
   return (
     <DrawerContentScrollView {...props}>
       <DrawerItem
@@ -84,14 +71,6 @@ function CustomDrawerContent(props) {
 const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: Colors.backgroundPrimary,
-  },
-  headerSettingsButton: {
-    marginRight: 10,
-  },
-  settingsImage: {
-    width: 20,
-    height: 20,
-    tintColor: Colors.primary,
   },
   drawerStyle: {
     backgroundColor: Colors.backgroundPrimary,

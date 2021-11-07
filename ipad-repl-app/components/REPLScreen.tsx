@@ -1,10 +1,24 @@
 import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, View, ScrollView, KeyboardAvoidingView, Keyboard, TextInput, Text, Platform, SafeAreaView, TouchableWithoutFeedback } from "react-native";
+import { 
+  StyleSheet, 
+  View, 
+  ScrollView, 
+  KeyboardAvoidingView, 
+  Keyboard, 
+  TextInput, 
+  Text, 
+  Platform, 
+  SafeAreaView, 
+  TouchableOpacity, 
+  Image 
+} from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { StackParamList } from "../App";
 import { REPLSession } from "../models/pythonREPL";
 import { Colors } from "../assets/colors";
+
+const refreshImage = require('../assets/refresh.png');
 
 export type REPLScreenNavigationProp = NativeStackNavigationProp<StackParamList, 'REPLScreen'>
 
@@ -16,7 +30,7 @@ const DOWN_ARROW_KEY = '≥';
 const SPECIAL_CHARS = new Set([CLEAR_CONSOLE_KEY, UP_ARROW_KEY, DOWN_ARROW_KEY]);
 const getPrefix = (index: number) => (index === 0) ? START_PREFIX : CONTINUED_PREFIX;
 
-export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
+export const REPLScreen = ({navigation}:{navigation: REPLScreenNavigationProp}) => {
   const [consoleHistory, setConsoleHistory] = useState<string[]>([]);
   const [consoleEditText, setConsoleEditText] = useState([""]);
   const [consoleHistoryDisplay, setConsoleHistoryDisplay] = useState<string[]>([]);
@@ -26,6 +40,25 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
   const [replSession, setReplSession] = useState<REPLSession | undefined>(undefined);
   const [commandSent, setCommandSent] = useState(false);
   const consoleHistoryScrollView = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    console.log(navigation);
+    console.log(navigation.setOptions);
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={styles.headerButton}
+          onPress={() => alert('This is a button!')}
+        >
+          <Image
+            style={styles.headerButtonImage}
+            source={refreshImage}
+          />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation])
 
   useEffect(() => {
     console.log('Creating session...')
@@ -112,7 +145,7 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
                 }
               }}
               onKeyPress={(event) => {
-                if (event.nativeEvent.key === 'Enter' && replSession.isReady()) {
+                if (event.nativeEvent.key === 'Enter' && replSession !== undefined && replSession.isReady()) {
                   console.log("Sending code...")
                   setCommandSent(true);
                   replSession.sendCode(consoleEditText, (response) => {
@@ -154,6 +187,14 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
 };
 
 const styles = StyleSheet.create({
+  headerButton: {
+    marginRight: 10,
+  },
+  headerButtonImage: {
+    width: 20,
+    height: 20,
+    tintColor: Colors.primary,
+  },
   outerContainer: {
     backgroundColor: Colors.backgroundPrimary,
     flex: 1,
