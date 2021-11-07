@@ -3,11 +3,8 @@ import { StyleSheet, View, ScrollView, KeyboardAvoidingView, Keyboard, TextInput
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { StackParamList } from "../App";
-import { getResponse, REPLTextResponse } from "../models/pythonREPL";
+import { getResponse } from "../models/pythonREPL";
 import { Colors } from "../assets/colors";
-import { API_URL } from "../env";
-
-export const MAX_RESPONSE_LINES = 1452;
 
 export type REPLScreenNavigationProp = NativeStackNavigationProp<StackParamList, 'REPLScreen'>
 

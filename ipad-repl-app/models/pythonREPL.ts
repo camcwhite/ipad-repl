@@ -1,6 +1,6 @@
-import {defer, Deferred} from "q";
 import { API_URL } from "../env";
-import { MAX_RESPONSE_LINES } from "../components/REPLScreen";
+
+export const MAX_RESPONSE_LINES = 1452;
 
 export interface REPLResponse {
   
