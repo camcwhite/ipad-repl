@@ -14,6 +14,9 @@ class NewSessionView(View):
 
 class NewCommandView(View):
 
+    def get(self, request, *args, **kwargs):
+        return HttpResponse(f"Try Using POST instead!")
+
     def post(self, request, *args, **kwargs):
         request_data = json.loads(request.body)
         code = request_data.get('code', '')
