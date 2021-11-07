@@ -3,7 +3,7 @@ import { StyleSheet, View, ScrollView, KeyboardAvoidingView, Keyboard, TextInput
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { StackParamList } from "../App";
-import { getResponse } from "../models/pythonREPL";
+import { REPLSession } from "../models/pythonREPL";
 import { Colors } from "../assets/colors";
 
 export type REPLScreenNavigationProp = NativeStackNavigationProp<StackParamList, 'REPLScreen'>
@@ -17,14 +17,24 @@ const SPECIAL_CHARS = new Set([CLEAR_CONSOLE_KEY, UP_ARROW_KEY, DOWN_ARROW_KEY])
 const getPrefix = (index: number) => (index === 0) ? START_PREFIX : CONTINUED_PREFIX;
 
 export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
-  const [consoleHistory, setConsoleHistory] = useState(new Array<string>());
+  const [consoleHistory, setConsoleHistory] = useState<string[]>([]);
   const [consoleEditText, setConsoleEditText] = useState([""]);
-  const [consoleHistoryDisplay, setConsoleHistoryDisplay] = useState(new Array<string>());
+  const [consoleHistoryDisplay, setConsoleHistoryDisplay] = useState<string[]>([]);
   const [consoleEditNewLines, setConsoleEditNewLines] = useState(0);
   const [consoleHistoryIndex, setConsoleHistoryIndex] = useState(-1);
   const [consoleEditTextCache, setConsoleEditTextCache] = useState("");
+  const [replSession, setReplSession] = useState<REPLSession | undefined>(undefined);
   const [commandSent, setCommandSent] = useState(false);
   const consoleHistoryScrollView = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    console.log('Creating session...')
+    newREPLSession();
+  }, [])
+
+  const newREPLSession = () => {
+    setReplSession(new REPLSession());
+  }
 
   const clearConsole = () => {
     setConsoleHistoryDisplay([]);
@@ -51,8 +61,6 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
       setConsoleEditText([...consoleEditText.slice(0, -1), newConsoleEditText]);
     }
   }
-
-  console.log(commandSent);
 
   return (
     <KeyboardAvoidingView
@@ -104,11 +112,12 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
                 }
               }}
               onKeyPress={(event) => {
-                if (event.nativeEvent.key === 'Enter') {
+                if (event.nativeEvent.key === 'Enter' && replSession.isReady()) {
+                  console.log("Sending code...")
                   setCommandSent(true);
-                  getResponse(consoleEditText, (response) => {
+                  replSession.sendCode(consoleEditText, (response) => {
                     setCommandSent(false);
-                    if (response.responseComplete()) {
+                    if (response.inputFinished()) {
                       const responseText = response.responseText();
                       const prefix = getPrefix(consoleEditText.length - 1);
                       setConsoleHistory([
