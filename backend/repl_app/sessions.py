@@ -8,6 +8,15 @@ from django.utils import timezone
 
 T = TypeVar('T', bound='REPLSession')
 
+ALLOWED_IMPORTS = {'math'}
+REMOVED_BUILTINS = {
+    'open',
+    'input',
+    'quit',
+    'exit',
+}
+IMPORT_ERROR = False
+
 class REPLSession:
     '''
     Represents an active REPL session
@@ -19,12 +28,32 @@ class REPLSession:
 
         If repl_history is provided, executes all the commands in repl_history
         ''' 
+        def safe_import(name, *args):
+            if name not in ALLOWED_IMPORTS:
+                self._import_error = name
+                return
+                # raise ImportError(name)
+            try: 
+                print(f'{name} is good')
+                return __import__(name, *args)
+            except ImportError:
+                pass
+
         print('creating new interpreter', flush=True)
-        self.session = InteractiveInterpreter() 
+        new_builtins = {k:v for k,v in __builtins__.items()}
+        new_builtins['__import__'] = safe_import
+        self.session = InteractiveInterpreter(locals={'safe_import': safe_import, '__builtins__': new_builtins}) 
+        self.session.runsource("__builtins__['__import__'] = safe_import")
+        for name in REMOVED_BUILTINS:
+            self._remove_builtin(name)
+        self._import_error = None
         self.session_info = repl_info
         if repl_info:
             for entry in repl_info.entries.all():
                 self._execute_entry(entry)
+
+    def _remove_builtin(self, name:str) -> None:
+        self.session.runsource(f"del __builtins__['{name}']")
 
     _cached_sessions = {}
 
@@ -66,18 +95,24 @@ class REPLSession:
         info history
         '''
         output_stream = StringIO()
-        with redirect_stdout(output_stream):
-            with redirect_stderr(output_stream):
-                executed_at = timezone.now()
-                try:
-                    need_more = self.session.runsource(code)
-                except SystemExit as e:
-                    print('Please use the button to exit.')
+        with redirect_stdout(output_stream), redirect_stderr(output_stream):
+            executed_at = timezone.now()
+            global IMPORT_ERROR
+            try:
+                need_more = self.session.runsource(code)
+
+                if self._import_error is not None:
+                    print(f'That import is not allowed. Allowed Imports are:\n{ALLOWED_IMPORTS}')
+                    self.session.runsource(f'del {self._import_error}')
                     need_more = False
+                    self._import_error = None
+            except SystemExit as e:
+                print('Please use the button to exit.')
+                need_more = False
         if save and not need_more:
             REPLHistoryEntry(code=code, session_info=self.session_info, executed_at=executed_at).save()
         out = output_stream.getvalue()
         while out.endswith('\n'):
             out = out[:-1]
-        print(repr(out),flush=True)
+        # print(repr(out),flush=True)
         return out, need_more

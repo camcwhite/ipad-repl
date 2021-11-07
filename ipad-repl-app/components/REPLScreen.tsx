@@ -84,6 +84,7 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
               multiline={true}
               numberOfLines={1}
               scrollEnabled={true}
+              keyboardType={'ascii-capable'}
               autoFocus={true}
               value={consoleEditText.slice(-1)[0]}
               selectionColor={Colors.primary}
@@ -115,7 +116,7 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
                       setConsoleHistoryDisplay([
                         ...consoleHistoryDisplay,
                         prefix + consoleEditText.slice(-1)[0],
-                        responseText
+                        ...(responseText.length > 0 ? [responseText] : [])
                       ]);
                       setConsoleHistoryIndex(-1);
                       setConsoleEditText([""]);
