@@ -1,5 +1,6 @@
 import {defer, Deferred} from "q";
 import { API_URL } from "../env";
+import { MAX_RESPONSE_LINES } from "../components/REPLScreen";
 
 export interface REPLResponse {
   
@@ -20,14 +21,21 @@ export interface REPLResponse {
 
 export class REPLTextResponse implements REPLResponse {
 
-  public constructor(public readonly inputText:string) {
+  private readonly text;
+
+  public constructor(inputText:string) {
+    const lines = inputText.split('\n');
+    if (lines.length > MAX_RESPONSE_LINES) {
+      lines[MAX_RESPONSE_LINES-1] = `[Only showing first ${MAX_RESPONSE_LINES-1} lines of output]`
+    }
+    this.text = lines.slice(0, MAX_RESPONSE_LINES).join('\n')
   }
 
   /**
    * @inheritdoc
    */
   public responseText():string {
-    return `${this.inputText}`;
+    return this.text;
   }
 
   /**
@@ -61,7 +69,7 @@ function makeRequest(inputText:string): Promise<Response> {
   };
   const url = API_URL + '/python/new-command/'
   console.log(`making fetch: ${url}`);
-  return fetch(url, requestOptions);
+  return fetch(url, requestOptions)
 }
 
 /**
