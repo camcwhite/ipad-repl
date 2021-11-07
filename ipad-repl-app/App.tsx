@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, Button, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Button} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 // import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
@@ -22,7 +23,7 @@ export default function App() {
     <NavigationContainer>
       <Drawer.Navigator
         drawerContent={(props) => <CustomDrawerContent {...props} />}
-        screenOptions={{ 
+        screenOptions={{
           headerShown: false,
           drawerStyle: styles.drawerStyle,
           drawerActiveTintColor: Colors.textBackground,
@@ -52,14 +53,14 @@ export default function App() {
   );
 }
 
-function CustomDrawerContent(props:any) {
+function CustomDrawerContent(props: any) {
   return (
     <DrawerContentScrollView {...props}>
       <DrawerItem
         label='iREPL'
         style={styles.drawerTitleView}
         labelStyle={styles.drawerTitle}
-        onPress={() => { }}
+        onPress={() => {  }}
       />
       <DrawerItemList {...props} />
     </DrawerContentScrollView>
