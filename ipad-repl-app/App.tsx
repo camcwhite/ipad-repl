@@ -18,8 +18,6 @@ export type StackParamList = {
 const Drawer = createDrawerNavigator();
 
 export default function App() {
-  const [data, setData] = useState("")
-
   return (
     <NavigationContainer>
       <Drawer.Navigator

@@ -97,7 +97,6 @@ export class REPLSession {
     if (this.sessionID === undefined) {
       throw new Error("REPL Session not ready for input") 
     }
-    console.log('Session ID', this.sessionID);
     this.makeCommandPostRequest(input.join('\n'))
       .then((response) => response.json())
       .then((data) => (data.unfinished ? new REPLUnfinishedInputResponse() : new REPLTextResponse(data.output)))

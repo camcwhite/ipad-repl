@@ -1,16 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
-import { 
-  StyleSheet, 
-  View, 
-  ScrollView, 
-  KeyboardAvoidingView, 
-  Keyboard, 
-  TextInput, 
-  Text, 
-  Platform, 
-  SafeAreaView, 
-  TouchableOpacity, 
-  Image 
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  KeyboardAvoidingView,
+  Keyboard,
+  TextInput,
+  Text,
+  Platform,
+  SafeAreaView,
+  TouchableOpacity,
+  Image,
+  Alert,
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useHeaderHeight } from "@react-navigation/elements";
@@ -30,7 +31,7 @@ const DOWN_ARROW_KEY = '≥';
 const SPECIAL_CHARS = new Set([CLEAR_CONSOLE_KEY, UP_ARROW_KEY, DOWN_ARROW_KEY]);
 const getPrefix = (index: number) => (index === 0) ? START_PREFIX : CONTINUED_PREFIX;
 
-export const REPLScreen = ({navigation}:{navigation: REPLScreenNavigationProp}) => {
+export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationProp }) => {
   const [consoleHistory, setConsoleHistory] = useState<string[]>([]);
   const [consoleEditText, setConsoleEditText] = useState([""]);
   const [consoleHistoryDisplay, setConsoleHistoryDisplay] = useState<string[]>([]);
@@ -42,14 +43,13 @@ export const REPLScreen = ({navigation}:{navigation: REPLScreenNavigationProp}) 
   const consoleHistoryScrollView = useRef<ScrollView>(null);
 
   useEffect(() => {
-    console.log(navigation);
-    console.log(navigation.setOptions);
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity
           activeOpacity={0.7}
           style={styles.headerButton}
-          onPress={() => alert('This is a button!')}
+          onPress={() => Alert.alert("New REPL Session?", "All defined variables/functions will be reset.",
+            [{ text: "Cancel", style: 'cancel' }, { text: "Yes", onPress: newREPLSession, style: 'destructive'}])}
         >
           <Image
             style={styles.headerButtonImage}
@@ -61,12 +61,12 @@ export const REPLScreen = ({navigation}:{navigation: REPLScreenNavigationProp}) 
   }, [navigation])
 
   useEffect(() => {
-    console.log('Creating session...')
     newREPLSession();
   }, [])
 
   const newREPLSession = () => {
     setReplSession(new REPLSession());
+    clearConsole();
   }
 
   const clearConsole = () => {
@@ -115,11 +115,11 @@ export const REPLScreen = ({navigation}:{navigation: REPLScreenNavigationProp}) 
             })}
           </ScrollView>
           <View style={styles.consoleInputContainer}>
-            <Text style={{...styles.consoleText, ...(commandSent ? {color: Colors.primary} : {})}}>
+            <Text style={{ ...styles.consoleText, ...(commandSent ? { color: Colors.primary } : {}) }}>
               {getPrefix(consoleEditText.length - 1)}
             </Text>
             <TextInput
-              style={{ ...styles.consoleText, width: '100%', ...(commandSent ? {color: Colors.primary} : {})}}
+              style={{ ...styles.consoleText, width: '100%', ...(commandSent ? { color: Colors.primary } : {}) }}
               autoCorrect={false}
               autoCapitalize="none"
               multiline={true}
