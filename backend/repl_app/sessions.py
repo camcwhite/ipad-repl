@@ -14,7 +14,7 @@ T = TypeVar('T', bound='REPLSession')
 MAX_OUT_LEN = 10_000
 
 TIMEOUT = 5 # seconds
-ALLOWED_IMPORTS = {'math'}
+ALLOWED_IMPORTS = {'math', 'time'}
 REMOVED_BUILTINS = {
     'open',
     'input',
@@ -37,9 +37,12 @@ def _async_raise(tid, exctype):
         ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(tid), None)
         raise SystemError("PyThreadState_SetAsyncExc failed")
 
-class ThreadWithExc(threading.Thread):
-    '''A thread class that supports raising an exception in the thread from
-       another thread.
+class StoppableThread(threading.Thread):
+    '''
+    A thread class that supports stopping via raising an exception in the 
+    thread from another thread.
+
+    source https://stackoverflow.com/a/325528/17005182
     '''
     def _get_my_tid(self):
         """determines this (self's) thread id
@@ -61,33 +64,12 @@ class ThreadWithExc(threading.Thread):
                 self._thread_id = tid
                 return tid
 
-        # TODO: in python 2.6, there's a simpler way to do: self.ident
-
         raise AssertionError("could not determine the thread's id")
 
-    def raise_exc(self, exctype):
-        """Raises the given exception type in the context of this thread.
-
-        If the thread is busy in a system call (time.sleep(),
-        socket.accept(), ...), the exception is simply ignored.
-
-        If you are sure that your exception should terminate the thread,
-        one way to ensure that it works is:
-
-            t = ThreadWithExc( ... )
-            ...
-            t.raiseExc( SomeException )
-            while t.isAlive():
-                time.sleep( 0.1 )
-                t.raiseExc( SomeException )
-
-        If the exception is to be caught by the thread, you need a way to
-        check that your thread has caught it.
-
-        CAREFUL: this function is executed in the context of the
-        caller thread, to raise an exception in the context of the
-        thread represented by this instance.
-        """
+    def stop(self, exctype):
+        '''
+        Raises the given exception type in the context of this thread.
+        '''
         _async_raise( self._get_my_tid(), exctype )
 
 class REPLSession:
@@ -168,11 +150,6 @@ class REPLSession:
         info history
         '''
         output_stream = StringIO()
-        def pprint(s):
-            _stdout = sys.stdout
-            sys.stdout = sys.__stdout__
-            print(s, flush=True)
-            sys.stdout = _stdout
         timeout = False
         with redirect_stdout(output_stream), redirect_stderr(output_stream):
             executed_at = timezone.now()
@@ -184,15 +161,14 @@ class REPLSession:
                 def do_runsource():
                     need_more_dict['need_more'] = self.session.runsource(code)
 
-                runsource_thread = ThreadWithExc(target=do_runsource)
+                runsource_thread = StoppableThread(target=do_runsource)
                 runsource_thread.start()
                 runsource_thread.join(TIMEOUT)
 
                 need_more = need_more_dict['need_more']
                 if runsource_thread.is_alive():
-                    pprint('timeout...')
                     # a thread to stop the running thread
-                    threading.Thread(target=lambda: runsource_thread.raise_exc(TimeoutError)).start()
+                    threading.Thread(target=lambda: runsource_thread.stop(TimeoutError)).start()
                     timeout = True
 
                 if self._import_error is not None:
