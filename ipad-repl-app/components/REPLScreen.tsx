@@ -55,8 +55,6 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
     }
   }
 
-  const assertFail = (): never => { throw Error(); }
-
   console.log(commandSent);
 
   return (
@@ -79,11 +77,11 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
             })}
           </ScrollView>
           <View style={styles.consoleInputContainer}>
-            <Text style={styles.consoleText}>
+            <Text style={{...styles.consoleText, ...(commandSent ? {color: Colors.primary} : {})}}>
               {getPrefix(consoleEditText.length - 1)}
             </Text>
             <TextInput
-              style={{ ...styles.consoleText, width: '100%' }}
+              style={{ ...styles.consoleText, width: '100%', ...(commandSent ? {color: Colors.primary} : {})}}
               autoCorrect={false}
               autoCapitalize="none"
               multiline={true}
@@ -143,10 +141,6 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
               }}
             />
           </View>
-          {commandSent ? (
-            <Text style={{...styles.consoleText, ...styles.consoleWarningText}}>Waiting...</Text>
-          ) : (<></>)
-          }
         </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -170,10 +164,6 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     fontSize: 30,
     paddingVertical: 5,
-  },
-  consoleWarningText: {
-    color: Colors.secondary,
-    fontWeight: 'normal',
   },
   consoleInputContainer: {
     display: 'flex',
