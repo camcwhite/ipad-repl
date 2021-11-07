@@ -26,6 +26,7 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
   const [consoleEditNewLines, setConsoleEditNewLines] = useState(0);
   const [consoleHistoryIndex, setConsoleHistoryIndex] = useState(-1);
   const [consoleEditTextCache, setConsoleEditTextCache] = useState("");
+  const [commandSent, setCommandSent] = useState(false);
   const consoleHistoryScrollView = useRef<ScrollView>(null);
 
   const clearConsole = () => {
@@ -55,6 +56,8 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
   }
 
   const assertFail = (): never => { throw Error(); }
+
+  console.log(commandSent);
 
   return (
     <KeyboardAvoidingView
@@ -107,7 +110,9 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
               }}
               onKeyPress={(event) => {
                 if (event.nativeEvent.key === 'Enter') {
+                  setCommandSent(true);
                   getResponse(consoleEditText, (response) => {
+                    setCommandSent(false);
                     if (response.responseComplete()) {
                       const responseText = response.responseText();
                       const prefix = getPrefix(consoleEditText.length - 1);
@@ -138,6 +143,10 @@ export const REPLScreen = (navigation: REPLScreenNavigationProp) => {
               }}
             />
           </View>
+          {commandSent ? (
+            <Text style={{...styles.consoleText, ...styles.consoleWarningText}}>Waiting...</Text>
+          ) : (<></>)
+          }
         </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -161,6 +170,10 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     fontSize: 30,
     paddingVertical: 5,
+  },
+  consoleWarningText: {
+    color: Colors.secondary,
+    fontWeight: 'normal',
   },
   consoleInputContainer: {
     display: 'flex',
