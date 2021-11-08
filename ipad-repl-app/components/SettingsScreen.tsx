@@ -1,25 +1,32 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { StyleSheet, Text, TextInput, ScrollView, View, KeyboardAvoidingView, Platform } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { FocusAwareStatusBar } from "./FocusAwareStatusBar";
-import { Colors, getAllThemes, ColorTheme, useTheme } from "../assets/colors";
+import { getAllThemes, Theme } from "../themes";
+import { useTheme } from "react-native-paper";
 import { REPLScreenNavigationProp } from "./REPLScreen";
 import { saveNumber, saveString, } from "../storage";
 import { ACTIVE_THEME, EDITOR_FONT_SIZE } from "../storageKeys";
+import { useNavigation, useRoute } from "@react-navigation/core";
+import { ThemeContext } from "../themes";
 
 const MIN_FONT_SIZE = 10;
 const MAX_FONT_SIZE = 56;
 
-export const SettingsScreen = ({ navigation }: { navigation: REPLScreenNavigationProp }) => {
+export const SettingsScreen = () => {
+  // const route = useRoute();
+  // console.log(route.params.onThemeChange);
+
   // settings
   const [selectedTheme, setSelectedTheme] = useState("monokai");
   const [selectedFontSize, setSelectedFontSize] = useState(24);
 
   // display
   const allThemes = getAllThemes();
-  const activeTheme = useTheme();
   const [displayedFontSize, setDisplayedFontSize] = useState(`${selectedFontSize}`);
+
+  const {activeTheme, changeTheme:onThemeChange} = useContext(ThemeContext);
 
   const changeFontSize = (newFontSize: number) => {
     const safeNewFontSize = Math.min(Math.max(newFontSize, MIN_FONT_SIZE), MAX_FONT_SIZE);
@@ -46,6 +53,7 @@ export const SettingsScreen = ({ navigation }: { navigation: REPLScreenNavigatio
   const setActiveTheme = (newTheme: string) => {
     setSelectedTheme(newTheme);
     saveString(ACTIVE_THEME, newTheme);
+    onThemeChange(newTheme);
   }
 
   const dynamicStyles = StyleSheet.create({
@@ -53,7 +61,7 @@ export const SettingsScreen = ({ navigation }: { navigation: REPLScreenNavigatio
       fontFamily: 'Courier New',
       fontWeight: 'bold',
       fontSize: selectedFontSize,
-      color: Colors.fontPrimary,
+      color: activeTheme.colors.fontPrimary,
     },
   });
 
@@ -70,11 +78,11 @@ export const SettingsScreen = ({ navigation }: { navigation: REPLScreenNavigatio
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={useHeaderHeight() + 20}
       style={StyleSheet.flatten([styles.container, backgroundTheme])}>
-      <FocusAwareStatusBar barStyle={activeTheme.isDark ? "light-content" : "dark-content"} />
+      <FocusAwareStatusBar barStyle={activeTheme.dark ? "light-content" : "dark-content"} />
       <ScrollView style={StyleSheet.flatten([styles.scrollContainer, backgroundTheme])}>
         <View style={styles.sectionContainer}>
           <Text style={StyleSheet.flatten([styles.sectionHeader, fontTheme])}>Theme</Text>
-          {allThemes.map((theme: ColorTheme, index: number) => (
+          {allThemes.map((theme: Theme, index: number) => (
             (<TouchableOpacity
               key={index} style={styles.themeSelect}
               onPress={() => setActiveTheme(theme.name)}>
@@ -107,7 +115,7 @@ export const SettingsScreen = ({ navigation }: { navigation: REPLScreenNavigatio
               onEndEditing={() => parseFontSize(displayedFontSize.replace(/[^0-9]/, '0'))}
               maxLength={2}
               textAlign={'right'}
-              selectionColor={Colors.tertiary}
+              selectionColor={activeTheme.colors.tertiary}
               selectTextOnFocus={true}
               value={displayedFontSize} />
             <TouchableOpacity

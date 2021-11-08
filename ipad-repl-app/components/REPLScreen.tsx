@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useContext } from "react";
 import {
   StyleSheet,
   View,
@@ -22,6 +22,7 @@ import { loadNumber } from "../storage";
 import { EDITOR_FONT_SIZE } from "../storageKeys";
 import { useFocusEffect, useIsFocused } from "@react-navigation/core";
 import { FocusAwareStatusBar } from "./FocusAwareStatusBar";
+import { ThemeContext } from "../themes";
 
 const refreshImage = require('../assets/refresh.png');
 
@@ -47,7 +48,7 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
   const consoleHistoryScrollView = useRef<ScrollView>(null);
 
   // appearance settings
-  const activeTheme = useTheme();
+  const {activeTheme} = useContext(ThemeContext);
 
   const backgroundTheme = {
     backgroundColor: activeTheme.colors.backgroundPrimary,
@@ -129,7 +130,6 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
     }
   }
 
-  console.log('repl', activeTheme.name);
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -137,7 +137,7 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
       style={StyleSheet.flatten([styles.outerContainer, backgroundTheme])}
     >
       <SafeAreaView style={styles.container} onTouchStart={Keyboard.dismiss}>
-        <FocusAwareStatusBar barStyle={activeTheme.isDark ? "light-content" : "dark-content"}/>
+        <FocusAwareStatusBar barStyle={activeTheme.dark ? "light-content" : "dark-content"}/>
         <View style={styles.consoleContainer}>
           <ScrollView
             style={styles.historyContainer}

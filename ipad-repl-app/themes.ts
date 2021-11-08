@@ -1,35 +1,11 @@
-import { DefaultTheme } from "react-native-paper";
-import { useEffect, useState } from "react";
-import { loadString } from "../storage";
-import { ACTIVE_THEME } from "../storageKeys";
-
-declare global {
-  namespace ReactNativePaper {
-    interface ThemeColors {
-      backgroundPrimary: Color,
-      backgroundSecondary: Color,
-      fontPrimary: Color,
-      textBackground: Color,
-      primary: Color,
-      secondary: Color,
-      tertiary: Color,
-    }
-
-    interface Theme {
-      name: string,
-      dark: boolean,
-      colors: ThemeColors,
-    }
-  }
-}
-
+import React from "react";
 export const DEFAULT_THEME = 'monokai';
 
 type Color = string;
 
-export type ColorTheme = {
+export type Theme = {
   name: string,
-  isDark: boolean,
+  dark: boolean,
   colors: {
     backgroundPrimary: Color,
     backgroundSecondary: Color,
@@ -42,13 +18,12 @@ export type ColorTheme = {
 };
 
 
-const themes = new Map<string, ReactNativePaper.Theme>([
-  ['monokai', {
-    ...DefaultTheme,
+const themes = new Map<string, Theme>([
+  ['monokai', 
+  {
     name: 'monokai',
     dark: true,
     colors: {
-      ...DefaultTheme.colors,
       backgroundPrimary: '#2e2e2e',
       backgroundSecondary: '#2e2e2e',
       fontPrimary: '#d6d6d6',
@@ -87,13 +62,4 @@ export const getAllThemes = (): Theme[] => {
   return [...themes.values()];
 }
 
-// export const useTheme = (): ColorTheme => {
-//   const [activeTheme, setActiveTheme] = useState(getTheme(DEFAULT_THEME));
-
-//   useEffect(() => {
-//     loadString(ACTIVE_THEME)
-//       .then((theme) => setActiveTheme(getTheme(theme))); 
-//   });
-
-//   return activeTheme;
-// }
+export const ThemeContext = React.createContext({activeTheme: getTheme(DEFAULT_THEME), changeTheme:(newThemeName: string) => { }});
