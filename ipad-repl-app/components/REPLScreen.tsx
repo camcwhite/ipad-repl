@@ -17,10 +17,11 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { StackParamList } from "../App";
 import { REPLSession } from "../models/pythonREPL";
-import { Colors } from "../assets/colors";
+import { Colors, useTheme } from "../assets/colors";
 import { loadNumber } from "../storage";
 import { EDITOR_FONT_SIZE } from "../storageKeys";
 import { useFocusEffect, useIsFocused } from "@react-navigation/core";
+import { FocusAwareStatusBar } from "./FocusAwareStatusBar";
 
 const refreshImage = require('../assets/refresh.png');
 
@@ -46,16 +47,27 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
   const consoleHistoryScrollView = useRef<ScrollView>(null);
 
   // appearance settings
+  const activeTheme = useTheme();
+
+  const backgroundTheme = {
+    backgroundColor: activeTheme.colors.backgroundPrimary,
+  }
+
+  const fontTheme = {
+    color: activeTheme.colors.fontPrimary,
+  }
+
   const [consoleTextSize, setConsoleTextSize] = useState<number>(0);
 
   const storedStyles = StyleSheet.create({
     consoleText: {
       ...styles.consoleText,
       fontSize: consoleTextSize,
+      color: activeTheme.colors.fontPrimary,
     },
   });
 
-  // TODO: use redux to trigger reload instead of this
+  // TODO: use hook to trigger reload instead of this
   useFocusEffect(() => {
     loadNumber(EDITOR_FONT_SIZE).then(setConsoleTextSize, (reason) => console.log(reason));
   });
@@ -74,7 +86,7 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
             [{ text: "Cancel", style: 'cancel' }, { text: "Yes", onPress: newREPLSession, style: 'destructive'}])}
         >
           <Image
-            style={styles.headerButtonImage}
+            style={StyleSheet.flatten([styles.headerButtonImage, {tintColor: activeTheme.colors.primary}])}
             source={refreshImage}
           />
         </TouchableOpacity>
@@ -117,13 +129,15 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
     }
   }
 
+  console.log('repl', activeTheme.name);
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={useHeaderHeight() + 20}
-      style={styles.outerContainer}
+      style={StyleSheet.flatten([styles.outerContainer, backgroundTheme])}
     >
       <SafeAreaView style={styles.container} onTouchStart={Keyboard.dismiss}>
+        <FocusAwareStatusBar barStyle={activeTheme.isDark ? "light-content" : "dark-content"}/>
         <View style={styles.consoleContainer}>
           <ScrollView
             style={styles.historyContainer}
@@ -137,11 +151,11 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
             })}
           </ScrollView>
           <View style={styles.consoleInputContainer}>
-            <Text style={{ ...storedStyles.consoleText, ...(commandSent ? { color: Colors.primary } : {}) }}>
+            <Text style={{ ...storedStyles.consoleText, ...(commandSent ? { color: activeTheme.colors.primary } : {}) }}>
               {getPrefix(consoleEditText.length - 1)}
             </Text>
             <TextInput
-              style={{ ...storedStyles.consoleText, width: '100%', ...(commandSent ? { color: Colors.primary } : {}) }}
+              style={{ ...storedStyles.consoleText, width: '100%', ...(commandSent ? { color: activeTheme.colors.primary } : {}) }}
               autoCorrect={false}
               autoCapitalize="none"
               multiline={true}
@@ -150,7 +164,7 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
               keyboardType={'ascii-capable'}
               autoFocus={true}
               value={consoleEditText.slice(-1)[0]}
-              selectionColor={Colors.primary}
+              selectionColor={activeTheme.colors.primary}
               onChangeText={(newText) => {
                 if (newText.slice(-1) === '\t')
                   newText = newText.slice(0, -1) + '    ';
@@ -214,10 +228,8 @@ const styles = StyleSheet.create({
   headerButtonImage: {
     width: 20,
     height: 20,
-    tintColor: Colors.primary,
   },
   outerContainer: {
-    backgroundColor: Colors.backgroundPrimary,
     flex: 1,
   },
   container: {

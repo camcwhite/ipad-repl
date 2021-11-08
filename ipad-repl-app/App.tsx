@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Button} from 'react-native';
+import { StyleSheet, Button } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 // import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { REPLScreen } from './components/REPLScreen';
 import { AboutScreen } from './components/AboutScreen';
 
-import { Colors } from './assets/colors';
+import { Colors, useTheme } from './assets/colors';
 import { SettingsScreen } from './components/SettingsScreen';
 
 
@@ -19,15 +19,22 @@ export type StackParamList = {
 const Drawer = createDrawerNavigator();
 
 export default function App() {
+  const activeTheme = useTheme();
+
+  const backgroundTheme = {
+    backgroundColor: activeTheme.colors.backgroundPrimary,
+  }
+
+  console.log('app', activeTheme.name);
   return (
     <NavigationContainer>
       <Drawer.Navigator
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
           headerShown: false,
-          drawerStyle: styles.drawerStyle,
+          drawerStyle: StyleSheet.flatten([styles.drawerStyle, backgroundTheme]),
           drawerActiveTintColor: Colors.textBackground,
-          drawerLabelStyle: styles.drawerLabelStyle,
+          drawerLabelStyle: StyleSheet.flatten([styles.drawerLabelStyle, { color: activeTheme.colors.secondary }]),
         }}
       >
         {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
@@ -36,23 +43,23 @@ export default function App() {
             headerShown: true,
             headerTitle: 'Python3',
             title: 'REPL',
-            headerStyle: styles.headerContainer,
-            headerTintColor: Colors.primary,
+            headerStyle: StyleSheet.flatten([styles.headerContainer, backgroundTheme]),
+            headerTintColor: activeTheme.colors.primary,
           }
         } />
 
         <Drawer.Screen name="Settings" component={SettingsScreen} options={
           {
             headerShown: true,
-            headerStyle: styles.headerContainer,
-            headerTintColor: Colors.tertiary,
+            headerStyle: StyleSheet.flatten([styles.headerContainer, backgroundTheme]),
+            headerTintColor: activeTheme.colors.tertiary,
           }
         } />
 
         <Drawer.Screen name="About" component={AboutScreen} options={
           {
             headerShown: true,
-            headerStyle: styles.headerContainer,
+            headerStyle: StyleSheet.flatten([styles.headerContainer, backgroundTheme]),
             headerTintColor: Colors.tertiary,
           }
         } />
@@ -62,13 +69,15 @@ export default function App() {
 }
 
 function CustomDrawerContent(props: any) {
+  const activeTheme = useTheme();
+  console.log('header', activeTheme.name);
   return (
     <DrawerContentScrollView {...props}>
       <DrawerItem
         label='iREPL'
         style={styles.drawerTitleView}
-        labelStyle={styles.drawerTitle}
-        onPress={() => {  }}
+        labelStyle={StyleSheet.flatten([styles.drawerTitle, { color: activeTheme.colors.secondary }])}
+        onPress={() => { }}
       />
       <DrawerItemList {...props} />
     </DrawerContentScrollView>
@@ -77,16 +86,13 @@ function CustomDrawerContent(props: any) {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: Colors.backgroundPrimary,
   },
   drawerStyle: {
-    backgroundColor: Colors.backgroundPrimary,
   },
   drawerTitleView: {
     marginBottom: '20%',
   },
   drawerTitle: {
-    color: Colors.secondary,
     fontFamily: 'Courier New',
     fontWeight: 'bold',
     fontSize: 48,
@@ -94,6 +100,5 @@ const styles = StyleSheet.create({
   },
   drawerLabelStyle: {
     fontFamily: 'Arial',
-    color: Colors.secondary,
   },
 });
