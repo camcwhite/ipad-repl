@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Button} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 // import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
@@ -8,6 +7,7 @@ import { REPLScreen } from './components/REPLScreen';
 import { AboutScreen } from './components/AboutScreen';
 
 import { Colors } from './assets/colors';
+import { SettingsScreen } from './components/SettingsScreen';
 
 
 export type StackParamList = {
@@ -38,6 +38,14 @@ export default function App() {
             title: 'REPL',
             headerStyle: styles.headerContainer,
             headerTintColor: Colors.primary,
+          }
+        } />
+
+        <Drawer.Screen name="Settings" component={SettingsScreen} options={
+          {
+            headerShown: true,
+            headerStyle: styles.headerContainer,
+            headerTintColor: Colors.tertiary,
           }
         } />
 

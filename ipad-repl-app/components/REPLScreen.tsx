@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   StyleSheet,
   View,
@@ -18,6 +18,9 @@ import { useHeaderHeight } from "@react-navigation/elements";
 import { StackParamList } from "../App";
 import { REPLSession } from "../models/pythonREPL";
 import { Colors } from "../assets/colors";
+import { loadNumber } from "../storage";
+import { EDITOR_FONT_SIZE } from "../storageKeys";
+import { useFocusEffect, useIsFocused } from "@react-navigation/core";
 
 const refreshImage = require('../assets/refresh.png');
 
@@ -41,6 +44,25 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
   const [replSession, setReplSession] = useState<REPLSession | undefined>(undefined);
   const [commandSent, setCommandSent] = useState(false);
   const consoleHistoryScrollView = useRef<ScrollView>(null);
+
+  // appearance settings
+  const [consoleTextSize, setConsoleTextSize] = useState<number>(0);
+
+  const storedStyles = StyleSheet.create({
+    consoleText: {
+      ...styles.consoleText,
+      fontSize: consoleTextSize,
+    },
+  });
+
+  // TODO: use redux to trigger reload instead of this
+  useFocusEffect(() => {
+    loadNumber(EDITOR_FONT_SIZE).then(setConsoleTextSize, (reason) => console.log(reason));
+  });
+
+  useEffect(() => {
+    loadNumber(EDITOR_FONT_SIZE).then(setConsoleTextSize, (reason) => console.log(reason));
+  });
 
   useEffect(() => {
     navigation.setOptions({
@@ -110,16 +132,16 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
           >
             {consoleHistoryDisplay.map((text: string, index: number) => {
               return (
-                <Text key={index} style={styles.consoleText}>{text}</Text>
+                <Text key={index} style={storedStyles.consoleText}>{text}</Text>
               );
             })}
           </ScrollView>
           <View style={styles.consoleInputContainer}>
-            <Text style={{ ...styles.consoleText, ...(commandSent ? { color: Colors.primary } : {}) }}>
+            <Text style={{ ...storedStyles.consoleText, ...(commandSent ? { color: Colors.primary } : {}) }}>
               {getPrefix(consoleEditText.length - 1)}
             </Text>
             <TextInput
-              style={{ ...styles.consoleText, width: '100%', ...(commandSent ? { color: Colors.primary } : {}) }}
+              style={{ ...storedStyles.consoleText, width: '100%', ...(commandSent ? { color: Colors.primary } : {}) }}
               autoCorrect={false}
               autoCapitalize="none"
               multiline={true}
@@ -146,7 +168,6 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
               }}
               onKeyPress={(event) => {
                 if (event.nativeEvent.key === 'Enter' && replSession !== undefined && replSession.isReady()) {
-                  console.log("Sending code...")
                   setCommandSent(true);
                   replSession.sendCode(consoleEditText, (response) => {
                     setCommandSent(false);

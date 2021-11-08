@@ -16,6 +16,17 @@ export const saveString = async (key:string, value:string): Promise<void>  => {
 }
 
 /**
+ * Save a number to storage
+ * 
+ * @param key key to save to async storage
+ * @returns a promise that is rejected if there was an error saving from storage
+ *            and resolves if saving was succesful 
+ */
+export const saveNumber = async (key:string, value:number): Promise<void>  => {
+  return saveString(key, `${value}`);
+}
+
+/**
  * Save an object to storage
  * 
  * @param key key to save to async storage
@@ -46,6 +57,20 @@ export const loadString = async (key:string): Promise<string> => {
   } catch (e) {
     return Promise.reject("Error loading");
   }
+}
+
+/**
+ * Load a number from storage
+ * 
+ * @param key key to load from async storage
+ * @returns a promise that is rejected if there was an error loading from storage
+ *            or if the key was not in storage and resolves to a string value if 
+ *            loading was succesful 
+ */
+export const loadNumber = async (key:string): Promise<number> => {
+  const value = await loadString(key);
+  const num = parseFloat(value);
+  return Math.trunc(num) === num ? parseInt(value) : num;
 }
 
 /**
