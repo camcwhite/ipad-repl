@@ -17,7 +17,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { StackParamList } from "../App";
 import { REPLSession } from "../models/pythonREPL";
-import { Colors, useTheme } from "../assets/colors";
+import { useTheme } from "react-native-paper";
 import { loadNumber } from "../storage";
 import { EDITOR_FONT_SIZE } from "../storageKeys";
 import { useFocusEffect, useIsFocused } from "@react-navigation/core";
@@ -238,7 +238,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   consoleText: {
-    color: Colors.fontPrimary,
     fontFamily: 'Courier New',
     fontWeight: 'bold',
     textAlignVertical: 'center',

@@ -2,6 +2,25 @@ import { useEffect, useState } from "react";
 import { loadString } from "../storage";
 import { ACTIVE_THEME } from "../storageKeys";
 
+declare global {
+  namespace ReactNativePaper {
+    interface ThemeColors {
+      backgroundPrimary: Color,
+      backgroundSecondary: Color,
+      fontPrimary: Color,
+      textBackground: Color,
+      primary: Color,
+      secondary: Color,
+      tertiary: Color,
+    }
+
+    interface Theme {
+      name: string,
+      dark: boolean,
+      colors: ThemeColors,
+    }
+  }
+}
 
 export const DEFAULT_THEME = 'monokai';
 
@@ -32,10 +51,10 @@ export const Colors = {
 };
 
 
-const themes = new Map<string, ColorTheme>([
+const themes = new Map<string, ReactNativePaper.Theme>([
   ['monokai', {
     name: 'monokai',
-    isDark: true,
+    dark: true,
     colors: {
       backgroundPrimary: '#2e2e2e',
       backgroundSecondary: '#2e2e2e',
@@ -48,7 +67,7 @@ const themes = new Map<string, ColorTheme>([
   }],
   ['atomOneLight', {
     name: 'atomOneLight',
-    isDark: false,
+    dark: false,
     colors: {
       backgroundPrimary: '#FFFFFF',
       backgroundSecondary: '#EEEEEE',
@@ -61,7 +80,7 @@ const themes = new Map<string, ColorTheme>([
   }],
 ]);
 
-export const getTheme = (name: string): ColorTheme => {
+export const getTheme = (name: string): Theme => {
   const theme = themes.get(name);
   if (theme) { return theme }
   return getTheme(DEFAULT_THEME);
@@ -71,17 +90,17 @@ export const getTheme = (name: string): ColorTheme => {
  * Get an array of all ColorThemes in no particular order
  * @returns all color themes
  */
-export const getAllThemes = (): ColorTheme[] => {
+export const getAllThemes = (): Theme[] => {
   return [...themes.values()];
 }
 
-export const useTheme = (): ColorTheme => {
-  const [activeTheme, setActiveTheme] = useState(getTheme(DEFAULT_THEME));
+// export const useTheme = (): ColorTheme => {
+//   const [activeTheme, setActiveTheme] = useState(getTheme(DEFAULT_THEME));
 
-  useEffect(() => {
-    loadString(ACTIVE_THEME)
-      .then((theme) => setActiveTheme(getTheme(theme))); 
-  });
+//   useEffect(() => {
+//     loadString(ACTIVE_THEME)
+//       .then((theme) => setActiveTheme(getTheme(theme))); 
+//   });
 
-  return activeTheme;
-}
+//   return activeTheme;
+// }
