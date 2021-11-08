@@ -1,3 +1,4 @@
+import { DefaultTheme } from "react-native-paper";
 import { useEffect, useState } from "react";
 import { loadString } from "../storage";
 import { ACTIVE_THEME } from "../storageKeys";
@@ -40,22 +41,14 @@ export type ColorTheme = {
   }
 };
 
-export const Colors = {
-  backgroundPrimary: '#2e2e2e',
-  backgroundSecondary: '#2e2e2e',
-  fontPrimary: '#d6d6d6',
-  textBackground: '#9e86c8',
-  primary: '#b4d273',
-  secondary: '#b05279',
-  tertiary: '#6c99bb',
-};
-
 
 const themes = new Map<string, ReactNativePaper.Theme>([
   ['monokai', {
+    ...DefaultTheme,
     name: 'monokai',
     dark: true,
     colors: {
+      ...DefaultTheme.colors,
       backgroundPrimary: '#2e2e2e',
       backgroundSecondary: '#2e2e2e',
       fontPrimary: '#d6d6d6',
