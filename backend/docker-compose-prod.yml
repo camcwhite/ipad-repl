@@ -20,7 +20,9 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.prod
-    command: gunicorn replserver.wsgi:application --bind 0.0.0.0:8000
+    command: /bin/sh -c "python managr.py migrate && 
+                          python manage.py collectstatic &&
+                          gunicorn replserver.wsgi:application --bind 0.0.0.0:8000"
     env_file: .env
     expose:
       - 8000
