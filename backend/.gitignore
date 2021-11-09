@@ -1,3 +1,4 @@
 .env
 .db_env
 data/
+postgres_prod/
