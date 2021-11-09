@@ -32,4 +32,4 @@ USER app
 RUN chmod +x  /app/entrypoint.prod.sh
 
 # run entrypoint.prod.sh
-# ENTRYPOINT ["/app/entrypoint.prod.sh"]
+ENTRYPOINT ["/app/entrypoint.prod.sh"]
