@@ -1,0 +1,30 @@
+# syntax=docker/dockerfile:1
+FROM python:3.9.6-alpine
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# create the app user
+RUN addgroup -S app && adduser -S app -G app
+
+WORKDIR /app
+
+COPY requirements.txt /app/
+RUN pip install -r requirements.txt
+
+# copy entrypoint.prod.sh
+COPY ./entrypoint.prod.sh .
+RUN sed -i 's/\r$//g'  /app/entrypoint.prod.sh
+RUN chmod +x  /app/entrypoint.prod.sh
+
+# copy project
+COPY . /app
+
+# chown all the files to the app user
+RUN chown -R app:app $APP_HOME
+
+# change to the app user
+USER app
+
+# run entrypoint.prod.sh
+ENTRYPOINT ["/app/web/entrypoint.prod.sh"]
