@@ -89,7 +89,6 @@ class REPLSession:
                 return
                 # raise ImportError(name)
             try: 
-                print(f'{name} is good')
                 return __import__(name, *args)
             except ImportError:
                 pass

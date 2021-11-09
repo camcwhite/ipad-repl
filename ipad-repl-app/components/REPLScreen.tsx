@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useContext } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   StyleSheet,
   View,
@@ -13,20 +13,14 @@ import {
   Image,
   Alert,
 } from "react-native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useHeaderHeight } from "@react-navigation/elements";
-import { StackParamList } from "../App";
 import { REPLSession } from "../models/pythonREPL";
-import { useTheme } from "react-native-paper";
-import { loadNumber } from "../storage";
-import { EDITOR_FONT_SIZE } from "../storageKeys";
-import { useFocusEffect, useIsFocused } from "@react-navigation/core";
 import { FocusAwareStatusBar } from "./FocusAwareStatusBar";
-import { ThemeContext } from "../themes";
+import { FontContext, ThemeContext } from "../themes";
+import { DrawerParamList } from "../App";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
 
 const refreshImage = require('../assets/refresh.png');
-
-export type REPLScreenNavigationProp = NativeStackNavigationProp<StackParamList, 'REPLScreen'>
 
 const START_PREFIX = '>>> ';
 const CONTINUED_PREFIX = '... ';
@@ -36,7 +30,9 @@ const DOWN_ARROW_KEY = '≥';
 const SPECIAL_CHARS = new Set([CLEAR_CONSOLE_KEY, UP_ARROW_KEY, DOWN_ARROW_KEY]);
 const getPrefix = (index: number) => (index === 0) ? START_PREFIX : CONTINUED_PREFIX;
 
-export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationProp }) => {
+type REPLScreenNavProp = DrawerNavigationProp<DrawerParamList>;
+
+export const REPLScreen = ({ navigation }: {navigation: REPLScreenNavProp }) => {
   const [consoleHistory, setConsoleHistory] = useState<string[]>([]);
   const [consoleEditText, setConsoleEditText] = useState([""]);
   const [consoleHistoryDisplay, setConsoleHistoryDisplay] = useState<string[]>([]);
@@ -49,16 +45,11 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
 
   // appearance settings
   const {activeTheme} = useContext(ThemeContext);
+  const {fontSize:consoleTextSize} = useContext(FontContext);
 
   const backgroundTheme = {
     backgroundColor: activeTheme.colors.backgroundPrimary,
   }
-
-  const fontTheme = {
-    color: activeTheme.colors.fontPrimary,
-  }
-
-  const [consoleTextSize, setConsoleTextSize] = useState<number>(0);
 
   const storedStyles = StyleSheet.create({
     consoleText: {
@@ -66,15 +57,6 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
       fontSize: consoleTextSize,
       color: activeTheme.colors.fontPrimary,
     },
-  });
-
-  // TODO: use hook to trigger reload instead of this
-  useFocusEffect(() => {
-    loadNumber(EDITOR_FONT_SIZE).then(setConsoleTextSize, (reason) => console.log(reason));
-  });
-
-  useEffect(() => {
-    loadNumber(EDITOR_FONT_SIZE).then(setConsoleTextSize, (reason) => console.log(reason));
   });
 
   useEffect(() => {
@@ -93,7 +75,7 @@ export const REPLScreen = ({ navigation }: { navigation: REPLScreenNavigationPro
         </TouchableOpacity>
       ),
     });
-  }, [navigation])
+  }, [navigation, activeTheme])
 
   useEffect(() => {
     newREPLSession();

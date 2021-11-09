@@ -1,32 +1,27 @@
 import React, { useContext, useState } from "react";
-import { StyleSheet, Text, TextInput, ScrollView, View, KeyboardAvoidingView, Platform } from "react-native";
+import { StyleSheet, Text, TextInput, ScrollView, View, KeyboardAvoidingView, Platform, Image } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { FocusAwareStatusBar } from "./FocusAwareStatusBar";
-import { getAllThemes, Theme } from "../themes";
-import { useTheme } from "react-native-paper";
-import { REPLScreenNavigationProp } from "./REPLScreen";
+import { FontContext, getAllThemes, Theme } from "../themes";
 import { saveNumber, saveString, } from "../storage";
 import { ACTIVE_THEME, EDITOR_FONT_SIZE } from "../storageKeys";
-import { useNavigation, useRoute } from "@react-navigation/core";
 import { ThemeContext } from "../themes";
 
 const MIN_FONT_SIZE = 10;
 const MAX_FONT_SIZE = 56;
 
 export const SettingsScreen = () => {
-  // const route = useRoute();
-  // console.log(route.params.onThemeChange);
+  const { activeTheme, activeThemeKey:selectedTheme, changeTheme: onThemeChange } = useContext(ThemeContext);
 
   // settings
-  const [selectedTheme, setSelectedTheme] = useState("monokai");
-  const [selectedFontSize, setSelectedFontSize] = useState(24);
+  // const [selectedTheme, setSelectedTheme] = useState(activeTheme.name);
+  const { fontSize: selectedFontSize, setFontSize: setSelectedFontSize } = useContext(FontContext);
 
   // display
-  const allThemes = getAllThemes();
+  const allThemes = [...getAllThemes()];
   const [displayedFontSize, setDisplayedFontSize] = useState(`${selectedFontSize}`);
 
-  const {activeTheme, changeTheme:onThemeChange} = useContext(ThemeContext);
 
   const changeFontSize = (newFontSize: number) => {
     const safeNewFontSize = Math.min(Math.max(newFontSize, MIN_FONT_SIZE), MAX_FONT_SIZE);
@@ -51,9 +46,9 @@ export const SettingsScreen = () => {
   }
 
   const setActiveTheme = (newTheme: string) => {
-    setSelectedTheme(newTheme);
-    saveString(ACTIVE_THEME, newTheme);
-    onThemeChange(newTheme);
+    saveString(ACTIVE_THEME, newTheme).then(() => {
+      onThemeChange(newTheme)
+    });
   }
 
   const dynamicStyles = StyleSheet.create({
@@ -82,14 +77,15 @@ export const SettingsScreen = () => {
       <ScrollView style={StyleSheet.flatten([styles.scrollContainer, backgroundTheme])}>
         <View style={styles.sectionContainer}>
           <Text style={StyleSheet.flatten([styles.sectionHeader, fontTheme])}>Theme</Text>
-          {allThemes.map((theme: Theme, index: number) => (
+          {allThemes.map(([key, theme]: [string, Theme], index: number) => (
             (<TouchableOpacity
               key={index} style={styles.themeSelect}
-              onPress={() => setActiveTheme(theme.name)}>
+              onPress={() => setActiveTheme(key)}>
+              <Image source={theme.preview} style={StyleSheet.flatten([styles.themePreview, { 'borderColor': activeTheme.colors.backgroundContrast }])} />
               <View
                 style={{
                   ...styles.themeSelectButton,
-                  backgroundColor: (selectedTheme === theme.name ? activeTheme.colors.tertiary : activeTheme.colors.backgroundSecondary)
+                  backgroundColor: (selectedTheme === key ? activeTheme.colors.tertiary : activeTheme.colors.backgroundPrimary)
                 }}
               ></View>
               <Text style={StyleSheet.flatten([styles.themeSelectText, fontTheme])}>{theme.name}</Text>
@@ -138,8 +134,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scrollContainer: {
-    width: '50%',
+    width: '100%',
+    maxWidth: 1366 / 2,
     marginTop: '3%',
+    paddingLeft: 10,
   },
   sectionContainer: {
     marginVertical: '3%',
@@ -181,9 +179,11 @@ const styles = StyleSheet.create({
   },
   themeSelect: {
     display: 'flex',
-    flexDirection: 'row',
+    flex: 1,
+    marginVertical: '5%',
+    flexDirection: 'column',
     alignItems: 'center',
-    width: '100%',
+    justifyContent: 'space-between',
   },
   themeSelectButton: {
     height: 24,
@@ -193,9 +193,16 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 20,
+    marginTop: 20,
   },
   themeSelectText: {
+    // textAlign: 'center',
     fontSize: 40,
+  },
+  themePreview: {
+    width: 367,
+    height: 275,
+    resizeMode: 'contain',
+    borderWidth: 1,
   },
 });
