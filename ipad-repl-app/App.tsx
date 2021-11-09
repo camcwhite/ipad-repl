@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem, DrawerNavigationProp } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { REPLScreen } from './components/REPLScreen';
 import { AboutScreen } from './components/AboutScreen';
 import { getTheme, ThemeContext, FontContext, DEFAULT_THEME, DEFAULT_FONT_SIZE } from './themes';
@@ -57,7 +57,6 @@ export default function App() {
               drawerLabelStyle: StyleSheet.flatten([styles.drawerLabelStyle, { color: activeTheme.colors.secondary }]),
             }}
           >
-            {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
             <Drawer.Screen name="REPLScreen" component={REPLScreen} options={
               {
                 headerShown: true,
@@ -95,7 +94,7 @@ function CustomDrawerContent(props: any) {
   return (
     <DrawerContentScrollView {...props}>
       <DrawerItem
-        label='iREPL'
+        label='Ruff REPL'
         style={styles.drawerTitleView}
         labelStyle={StyleSheet.flatten([styles.drawerTitle, { color: activeTheme.colors.secondary }])}
         onPress={() => { }}
@@ -111,12 +110,12 @@ const styles = StyleSheet.create({
   drawerStyle: {
   },
   drawerTitleView: {
-    marginBottom: '20%',
+    marginVertical: '20%',
   },
   drawerTitle: {
     fontFamily: 'Courier New',
     fontWeight: 'bold',
-    fontSize: 48,
+    fontSize: 30,
     textAlign: 'center',
   },
   drawerLabelStyle: {

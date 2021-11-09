@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { defaults } from "./storageKeys";
 /**
  * Save a string to storage
  * 
@@ -52,7 +52,12 @@ export const loadString = async (key:string): Promise<string> => {
       return value;
     }
     else {
-      return Promise.reject(`Key ${key} not found in storage`);
+      const defaultValue = defaults.get(key);
+      if (defaultValue) {
+        saveString(key, defaultValue);
+        return defaultValue;
+      }
+      return Promise.reject(`Key ${key} not found in storage or defaults`);
     }
   } catch (e) {
     return Promise.reject("Error loading");

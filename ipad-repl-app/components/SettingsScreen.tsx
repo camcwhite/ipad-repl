@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { StyleSheet, Text, TextInput, ScrollView, View, KeyboardAvoidingView, Platform, Image } from "react-native";
+import { StyleSheet, Text, TextInput, ScrollView, View, KeyboardAvoidingView, Platform, Image, useWindowDimensions } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { FocusAwareStatusBar } from "./FocusAwareStatusBar";
@@ -12,7 +12,8 @@ const MIN_FONT_SIZE = 10;
 const MAX_FONT_SIZE = 56;
 
 export const SettingsScreen = () => {
-  const { activeTheme, activeThemeKey:selectedTheme, changeTheme: onThemeChange } = useContext(ThemeContext);
+  const { activeTheme, activeThemeKey: selectedTheme, changeTheme: onThemeChange } = useContext(ThemeContext);
+  const { width: screenWidth } = useWindowDimensions();
 
   // settings
   // const [selectedTheme, setSelectedTheme] = useState(activeTheme.name);
@@ -81,7 +82,11 @@ export const SettingsScreen = () => {
             (<TouchableOpacity
               key={index} style={styles.themeSelect}
               onPress={() => setActiveTheme(key)}>
-              <Image source={theme.preview} style={StyleSheet.flatten([styles.themePreview, { 'borderColor': activeTheme.colors.backgroundContrast }])} />
+              <Image source={theme.preview} style={StyleSheet.flatten([styles.themePreview, {
+                'borderColor': activeTheme.colors.backgroundContrast,
+                'width': screenWidth <= 375 ? 276 : 367,
+                'height': screenWidth <= 375 ? 207 : 275,
+              }])} />
               <View
                 style={{
                   ...styles.themeSelectButton,
@@ -122,6 +127,7 @@ export const SettingsScreen = () => {
             </TouchableOpacity>
           </View >
         </View>
+        <View style={styles.bottomMargin}></View>
       </ScrollView>
     </KeyboardAvoidingView >
   );
@@ -135,7 +141,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     width: '100%',
-    maxWidth: 1366 / 2,
+    maxWidth: 683,
     marginTop: '3%',
     paddingLeft: 10,
   },
@@ -196,13 +202,18 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   themeSelectText: {
-    // textAlign: 'center',
     fontSize: 40,
   },
   themePreview: {
-    width: 367,
-    height: 275,
+    // width: PixelRatio.get() > 2 ? 276 : 367,
+    // height: PixelRatio.get() > 2 ? 207 : 275,
+    // width: 367,
+    // height: 275,
     resizeMode: 'contain',
     borderWidth: 1,
+    marginRight: 5,
+  },
+  bottomMargin: {
+    marginBottom: 300,
   },
 });
