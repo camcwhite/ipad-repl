@@ -1,10 +1,9 @@
 from typing import Tuple, Type, TypeVar
-from .models import REPLHistoryEntry, REPLSessionInfo
+from .models import DeviceToken, REPLHistoryEntry, REPLSessionInfo
 from code import InteractiveInterpreter
 import threading
 from io import StringIO
 from contextlib import redirect_stderr, redirect_stdout
-import sys
 from django.utils import timezone
 import inspect
 import ctypes
@@ -111,21 +110,29 @@ class REPLSession:
     _cached_sessions = {}
 
     @classmethod
-    def load_session(cls:Type[T], id:int) -> T:
+    def load_session(cls:Type[T], id:int, device_token:DeviceToken) -> T:
         '''
         Loads the session with id `id` or returns a new session if
         `id` is 0
 
-        TODO: Add caching of sessions so all commands don't have to be re-executed
-        every time a command is run
+        If there is no session with ID `id`, creates a new REPLSessionInfo
+        object and returns a new session.
         '''
-        session_info = REPLSessionInfo.objects.get(id=id)
-        if id in cls._cached_sessions:
+        new_session = False
+        try:
+            session_info = REPLSessionInfo.objects.get(id=id)
+        except REPLSessionInfo.DoesNotExist:
+            print('session does not exist', id, flush=True)
+            session_info = REPLSessionInfo(device_token=device_token)
+            session_info.save()
+            new_session = True
+
+        if not new_session and id in cls._cached_sessions:
             session = cls._cached_sessions[id]
         else:
             session = cls(repl_info=session_info)
             cls._cached_sessions[id] = session
-        return session 
+        return session, session_info.id
 
     def save(self) -> None:
         '''

@@ -69,12 +69,16 @@ class NewSessionView(View):
 class NewCommandView(View):
 
     def post(self, request, *args, **kwargs):
-        request_data = get_json(request, ('session_id', int), ('code', str))
+        request_data = get_json(request, ('session_id', int), ('code', str), ('device_token', str))
         if request_data is None:
             return HttpResponseBadRequest("Please post a JSON with 'session_id' and 'code' keys")
-        code = request_data.get('code', '')
-        session_id = request_data.get('session_id', 0)
-        session = REPLSession.load_session(session_id)
+        code = request_data['code']
+        session_id = request_data['session_id']
+        try:
+            device_token = DeviceToken.objects.get(token=request_data['device_token'])
+        except DeviceToken.DoesNotExist:
+            return HttpResponseBadRequest("Device token not found")
+        session, session_id = REPLSession.load_session(session_id, device_token)
         output, need_more = session.execute(code)
         session.save()
-        return HttpResponse(json.dumps({'output': output, 'unfinished': need_more}))
+        return HttpResponse(json.dumps({'output': output, 'unfinished': need_more, 'session_id': session_id }))
