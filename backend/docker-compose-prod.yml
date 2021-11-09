@@ -7,6 +7,8 @@ services:
       - "80:80"
     depends_on:
       - web
+    volumes:
+      - static_volume:/home/app/staticfiles
     restart: "on-failure"
   db:
     image: postgres
@@ -24,3 +26,8 @@ services:
       - 8000
     depends_on:
       - db
+    volumes:
+      - static_volume:/home/app/staticfiles
+
+volumes:
+  static_volume:
