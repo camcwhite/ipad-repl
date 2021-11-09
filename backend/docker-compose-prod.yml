@@ -8,7 +8,9 @@ services:
     env_file:
       - ./.db_env
   web:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile.prod
     command: gunicorn replserver.wsgi:application --bind 0.0.0.0:80
     env_file: .env
     volumes:
