@@ -19,7 +19,6 @@ RUN pip install -r requirements.txt
 # copy entrypoint.prod.sh
 COPY ./entrypoint.prod.sh .
 RUN sed -i 's/\r$//g'  /app/entrypoint.prod.sh
-RUN chmod +x  /app/entrypoint.prod.sh
 
 # copy project
 COPY . /app
@@ -29,6 +28,7 @@ RUN chown -R app:app /app
 
 # change to the app user
 USER app
+RUN chmod +x  /app/entrypoint.prod.sh
 
 # run entrypoint.prod.sh
 ENTRYPOINT ["/app/entrypoint.prod.sh"]
