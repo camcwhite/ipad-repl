@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 683,
     marginTop: '3%',
-    paddingLeft: 10,
+    paddingHorizontal: 10,
   },
   scrollContent: {
     alignItems: 'flex-start',
