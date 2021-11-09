@@ -4,16 +4,15 @@ from typing import Tuple
 from io import StringIO
 from contextlib import redirect_stderr, redirect_stdout
 
-class REPLSessionInfo(models.Model):
+class DeviceToken(models.Model):
+    token = models.CharField(max_length=64, unique=True)
 
-    # def __init__(self, session, *args, **kwargs):
-    #     '''
-    #     Create a new REPLSession, assigning the instance variable
-    #     `session` to be a new InteractiveInterpreter object
-    #     '''
-    #     self._session = session
-    #     super().__init__(*args, **kwargs)
-    
+    def __str__(self) -> str:
+        return self.token
+
+class REPLSessionInfo(models.Model):
+    device_token = models.ForeignKey(to=DeviceToken, on_delete=models.CASCADE, related_name="sessions")
+
     @property
     def cached_session(self):
         try:

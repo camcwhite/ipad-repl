@@ -1,5 +1,7 @@
 import { API_URL } from "../env";
 import assert from "assert";
+import { loadString, removeKey } from "../storage";
+import { DEVICE_TOKEN } from "../storageKeys";
 
 export const MAX_RESPONSE_LINES = 1452;
 
@@ -64,15 +66,10 @@ class REPLUnfinishedInputResponse implements REPLResponse {
 
 export class REPLSession {
 
-  private static readonly sessions = new Array<REPLSession>();
-
   private sessionID:number | undefined = undefined;
 
   public constructor() {
-    makeNewSessionRequest().then((response) => response.json()).then((data) => this.sessionID = data.session_id)
-    // end all other sessions
-    REPLSession.sessions.forEach((session) => session.endSession());
-    REPLSession.sessions.push(this)
+    makeNewSessionRequest().then((data) => this.sessionID = data.session_id)
   }
 
   /**
@@ -103,13 +100,13 @@ export class REPLSession {
       .then(callback);
   }
 
-  /**
-   * Tell the backend server that this session is no longer being used and can
-   * be discarded
-   */
-  public endSession():void {
-    this.makeEndSessionRequest();
-  }
+  // /**
+  //  * Tell the backend server that this session is no longer being used and can
+  //  * be discarded
+  //  */
+  // public endSession():void {
+  //   this.makeEndSessionRequest();
+  // }
 
   private makeCommandPostRequest(inputText:string): Promise<Response> {
     assert(this.sessionID !== undefined, "Session ID is undefined");
@@ -121,21 +118,24 @@ export class REPLSession {
     const url = API_URL + '/python/new-command/'
     return fetch(url, requestOptions)
   }
-
-  private makeEndSessionRequest(): void {
-    assert(this.sessionID !== undefined, "Session ID is undefined");
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id: this.sessionID }),
-    };
-    const url = API_URL + '/python/end-session/'
-    fetch(url, requestOptions)
-  }
 }
 
 
-function makeNewSessionRequest(): Promise<Response> {
-  const url = API_URL + `/python/new-session/`
-  return fetch(url)
+async function makeNewSessionRequest(tryingAgain?:true): Promise<any> {
+  const requestOptions = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ device_token: await loadString(DEVICE_TOKEN) }),
+  };
+  const url = API_URL + '/python/new-session/'
+  return fetch(url, requestOptions)
+    .then((response) => {
+      if (response.ok) { return response.json() }
+      else if (!tryingAgain) {
+        // if the response was not ok (device token not found, try deleting device token)
+        return removeKey(DEVICE_TOKEN)
+          .then(() => makeNewSessionRequest(true));
+      }
+      else return Promise.reject("Error getting device token");
+    });
 }

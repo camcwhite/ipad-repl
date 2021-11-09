@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { defaults } from "./storageKeys";
+import { API_URL } from "./env";
+import { defaults, DEVICE_TOKEN } from "./storageKeys";
+
 /**
  * Save a string to storage
  * 
@@ -7,12 +9,12 @@ import { defaults } from "./storageKeys";
  * @returns a promise that is rejected if there was an error saving from storage
  *            and resolves if saving was succesful 
  */
-export const saveString = async (key:string, value:string): Promise<void>  => {
-    try {
-      await AsyncStorage.setItem(key, value);
-    } catch (e) {
-      return Promise.reject("Error Saving");
-    }
+export const saveString = async (key: string, value: string): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(key, value);
+  } catch (e) {
+    return Promise.reject("Error Saving");
+  }
 }
 
 /**
@@ -22,7 +24,7 @@ export const saveString = async (key:string, value:string): Promise<void>  => {
  * @returns a promise that is rejected if there was an error saving from storage
  *            and resolves if saving was succesful 
  */
-export const saveNumber = async (key:string, value:number): Promise<void>  => {
+export const saveNumber = async (key: string, value: number): Promise<void> => {
   return saveString(key, `${value}`);
 }
 
@@ -33,7 +35,7 @@ export const saveNumber = async (key:string, value:number): Promise<void>  => {
  * @returns a promise that is rejected if there was an error saving from storage
  *            and resolves if saving was succesful 
  */
-export const saveObject = async (key:string, value:object): Promise<void> => {
+export const saveObject = async (key: string, value: object): Promise<void> => {
   return saveString(key, JSON.stringify(value));
 }
 
@@ -45,7 +47,7 @@ export const saveObject = async (key:string, value:object): Promise<void> => {
  *            or if the key was not in storage and resolves to a string value if 
  *            loading was succesful 
  */
-export const loadString = async (key:string): Promise<string> => {
+export const loadString = async (key: string): Promise<string> => {
   try {
     const value = await AsyncStorage.getItem(key);
     if (value !== null) {
@@ -53,7 +55,14 @@ export const loadString = async (key:string): Promise<string> => {
     }
     else {
       const defaultValue = defaults.get(key);
-      if (defaultValue) {
+      if (key === DEVICE_TOKEN) {
+        return requestToken()
+          .then((token) => {
+            saveString(DEVICE_TOKEN, token)
+            return token;
+          })
+      }
+      else if (defaultValue) {
         saveString(key, defaultValue);
         return defaultValue;
       }
@@ -72,7 +81,7 @@ export const loadString = async (key:string): Promise<string> => {
  *            or if the key was not in storage and resolves to a string value if 
  *            loading was succesful 
  */
-export const loadNumber = async (key:string): Promise<number> => {
+export const loadNumber = async (key: string): Promise<number> => {
   const value = await loadString(key);
   const num = parseFloat(value);
   return Math.trunc(num) === num ? parseInt(value) : num;
@@ -86,7 +95,7 @@ export const loadNumber = async (key:string): Promise<number> => {
  *            or if the key was not in storage and resolves to an object of type T
  *            if the loading was successful 
  */
-export const loadObject = async <T extends object>(key:string): Promise<T> => {
+export const loadObject = async <T extends object>(key: string): Promise<T> => {
   return JSON.parse(await loadString(key));
 }
 
@@ -96,10 +105,16 @@ export const loadObject = async <T extends object>(key:string): Promise<T> => {
  * @param key key to remove from async storage
  * @returns a promise that is rejected if there was an error removing from storage 
  */
-export const removeKey = async (key:string):Promise<void> => {
+export const removeKey = async (key: string): Promise<void> => {
   try {
     await AsyncStorage.removeItem(key);
   } catch (e) {
     return Promise.reject("Error removing tiem");
   }
+}
+
+const requestToken = async (): Promise<string> => {
+  return fetch(API_URL + '/new-device-token/')
+    .then((response) => response.json())
+    .then((data) => data.device_token);
 }

@@ -93,7 +93,6 @@ class REPLSession:
             except ImportError:
                 pass
 
-        print('creating new interpreter', flush=True)
         new_builtins = {k:v for k,v in __builtins__.items()}
         new_builtins['__import__'] = safe_import
         self.session = InteractiveInterpreter(locals={'safe_import': safe_import, '__builtins__': new_builtins}) 
@@ -122,7 +121,6 @@ class REPLSession:
         '''
         session_info = REPLSessionInfo.objects.get(id=id)
         if id in cls._cached_sessions:
-            print('getting cached session')
             session = cls._cached_sessions[id]
         else:
             session = cls(repl_info=session_info)
