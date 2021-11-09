@@ -13,7 +13,7 @@ RUN addgroup -S app && adduser -S app -G app
 
 WORKDIR /app
 
-COPY requirements.txt /app/
+COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # copy entrypoint.prod.sh
@@ -31,4 +31,4 @@ USER app
 RUN chmod +x  /app/entrypoint.prod.sh
 
 # run entrypoint.prod.sh
-ENTRYPOINT ["/app/entrypoint.prod.sh"]
+# ENTRYPOINT ["/app/entrypoint.prod.sh"]
