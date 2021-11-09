@@ -1,12 +1,14 @@
 {
   "expo": {
-    "name": "ipad-repl",
-    "slug": "ipad-repl",
-    "version": "1.0.0",
-    "orientation": "portrait",
+    "name": "Ruff REPL",
+    "slug": "ruffrepl",
+    "version": "0.1.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
     "splash": {
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#2e2e2e"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -15,17 +17,14 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#FFFFFF"
-      }
+      "supportsTablet": true,
+      "bundleIdentifier": "com.camwhite.ruffrepl",
+      "buildNumber": "1.0.0"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "description": "simple ipad repl",
+    "description": "A simple REPL for iPad/iPhone.",
     "githubUrl": "https://github.com/whiteceric/ipad-repl"
   }
 }
