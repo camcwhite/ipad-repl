@@ -1,37 +1,17 @@
-## Welcome to GitHub Pages
+# Ruff REPL
 
-You can use the [editor on GitHub](https://github.com/whiteceric/ipad-repl/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+Ruff (Really Unnecessary and For Fun) REPL is a code REPL, Read Evaluate and Print Loop, 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+This is a simple REPL for iPad/iPhone. Currently, Python 3 is the only supported language, but this will change in the future. If you have a request for a language or any questions, email me:
 
-### Markdown
+This app was built primarily to accompany my development workflow which uses an iPad with an Apple Magic Keyboard, so there are some shortcuts in the REPL:
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+  - Clear console: Option + 'K' (˚ character)
+  - Previous command: Option + ';' (… character)
+  - Next command: Option + '.' (≥ character)
 
-```markdown
-Syntax highlighted code block
+That being said, things should work without an external keyboard and on an iPhone.
 
-# Header 1
-## Header 2
-### Header 3
+This app is open source! There is currently not an android version, so if you fork to release on android, all I ask for is credit.
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/whiteceric/ipad-repl/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+Feel free to contact me (whiteceric@gmail.com) if you have any questions/requests.
