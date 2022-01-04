@@ -15,3 +15,5 @@ That being said, things should work without an external keyboard and on an iPhon
 This app is open source! There is currently not an android version, so if you fork to release on android, all I ask for is credit.
 
 Feel free to contact me (whiteceric@gmail.com) if you have any questions/requests.
+
+[Privacy Policy](privacy.html)
